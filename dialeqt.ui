@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialeqt</class>
+ <widget class="QMainWindow" name="Dialeqt">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialeqt</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="DictTabsContainer" name="dictsTabsContainerWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>401</width>
+      <height>251</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="currentIndex">
+     <number>-1</number>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>400</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Файл</string>
+    </property>
+    <addaction name="createDictMenuButton"/>
+    <addaction name="separator"/>
+    <addaction name="action"/>
+    <addaction name="action_2"/>
+    <addaction name="separator"/>
+    <addaction name="action_4"/>
+    <addaction name="action_5"/>
+    <addaction name="action_6"/>
+    <addaction name="separator"/>
+    <addaction name="action_8"/>
+    <addaction name="action_9"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>Правка</string>
+    </property>
+    <addaction name="action_10"/>
+    <addaction name="action_11"/>
+    <addaction name="separator"/>
+    <addaction name="action_13"/>
+    <addaction name="action_14"/>
+    <addaction name="action_15"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>Вид</string>
+    </property>
+    <addaction name="action_16"/>
+    <addaction name="action_17"/>
+    <addaction name="separator"/>
+    <addaction name="action_19"/>
+    <addaction name="action_20"/>
+    <addaction name="action_21"/>
+    <addaction name="action_22"/>
+    <addaction name="action_23"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_2"/>
+   <addaction name="menu_3"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="action">
+   <property name="text">
+    <string>Открыть словарь</string>
+   </property>
+  </action>
+  <action name="action_2">
+   <property name="text">
+    <string>Закрыть словарь</string>
+   </property>
+  </action>
+  <action name="action_4">
+   <property name="text">
+    <string>Подключиться к серверу хранения словарей</string>
+   </property>
+  </action>
+  <action name="action_5">
+   <property name="text">
+    <string>Экспортировать словарь</string>
+   </property>
+  </action>
+  <action name="action_6">
+   <property name="text">
+    <string>Объединить текущий словарь с другим словарём</string>
+   </property>
+  </action>
+  <action name="action_8">
+   <property name="text">
+    <string>Настройки программы</string>
+   </property>
+  </action>
+  <action name="action_9">
+   <property name="text">
+    <string>Выход</string>
+   </property>
+  </action>
+  <action name="action_10">
+   <property name="text">
+    <string>Отменить последнее действие</string>
+   </property>
+  </action>
+  <action name="action_11">
+   <property name="text">
+    <string>Повторить отменённое действие</string>
+   </property>
+  </action>
+  <action name="action_13">
+   <property name="text">
+    <string>Скопировать</string>
+   </property>
+  </action>
+  <action name="action_14">
+   <property name="text">
+    <string>Вырезать</string>
+   </property>
+  </action>
+  <action name="action_15">
+   <property name="text">
+    <string>Вставить</string>
+   </property>
+  </action>
+  <action name="action_16">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Показать виртуальную клавиатуру МФА</string>
+   </property>
+  </action>
+  <action name="action_17">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Показать символьную виртуальную клавиатуру</string>
+   </property>
+  </action>
+  <action name="action_19">
+   <property name="text">
+    <string>Характеристика текущего словаря</string>
+   </property>
+  </action>
+  <action name="action_20">
+   <property name="text">
+    <string>Показать фонетическую легенду</string>
+   </property>
+  </action>
+  <action name="action_21">
+   <property name="text">
+    <string>Показать фонологию</string>
+   </property>
+  </action>
+  <action name="action_22">
+   <property name="text">
+    <string>Акцентология</string>
+   </property>
+  </action>
+  <action name="action_23">
+   <property name="text">
+    <string>Этимология</string>
+   </property>
+  </action>
+  <action name="createDictMenuButton">
+   <property name="text">
+    <string>Создать словарь</string>
+   </property>
+   <property name="priority">
+    <enum>QAction::HighPriority</enum>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>DictTabsContainer</class>
+   <extends>QTabWidget</extends>
+   <header>dicttabscontainer.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
