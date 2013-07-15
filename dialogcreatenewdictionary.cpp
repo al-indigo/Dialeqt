@@ -36,7 +36,7 @@ DictGlobalAttributes DialogCreateNewDictionary::getData()
   this->description = ui->dict_description->toPlainText();
   QString dbId(QDateTime::currentDateTimeUtc().toString().append(dictname).append(author));
 
-  DictGlobalAttributes dictAttrs(filename,dbId,dictname,author,credits,tags,description);
+  DictGlobalAttributes dictAttrs(dbId,filename,dictname,author,credits,tags,description);
 
   return dictAttrs;
 }
