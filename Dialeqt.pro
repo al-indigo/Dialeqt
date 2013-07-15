@@ -10,12 +10,14 @@ SOURCES += main.cpp\
         dialeqt.cpp \
     dialogcreatenewdictionary.cpp \
     dictglobalattributes.cpp \
-    dicttabscontainer.cpp
+    dicttabscontainer.cpp \
+    dictdbfactory.cpp
 
 HEADERS  += dialeqt.h \
     dialogcreatenewdictionary.h \
     dictglobalattributes.h \
-    dicttabscontainer.h
+    dicttabscontainer.h \
+    dictdbfactory.h
 
 FORMS    += dialeqt.ui \
     dialogcreatenewdictionary.ui
