@@ -48,15 +48,19 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
     //TODO: look for consonant strings
     //TODO: check out how to implement versioning support
     if (!query.exec(
-          "create table dict_attributes ("
-          "id                        integer UNIQUE NOT NULL primary key, "
-          "dict_identificator        text, "
-          "dict_name                 text, "
-          "dict_author               text, "
-          "dict_coauthors            text, "
-          "dict_classification_tags  text, "
-          "dict_description          text, "
-          "dict_legend               text)"
+          "CREATE TABLE dict_attributes ("
+              "id                       INTEGER PRIMARY KEY "
+                                               "NOT NULL "
+                                               "UNIQUE,"
+              "dict_identificator       TEXT, "
+              "dict_name                TEXT, "
+              "dict_author              TEXT, "
+              "dict_coauthors           TEXT, "
+              "dict_classification_tags TEXT, "
+              "dict_description         TEXT, "
+              "dict_legend              TEXT, "
+              "dialeqt_version          INTEGER DEFAULT ( 1 ) "
+          ");"
           )) {
         qDebug() << "Failed to create dict_attributes table";
         qDebug() << db.lastError().text();
@@ -64,25 +68,43 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
       } else {
         qDebug() << "dict_attributes table created ok";
       }
+
     
     /* table dictionary stores the dictionary and links to foreign blobs */
     if (!query.exec(
-          "create table dictionary ("
-          "id                       integer UNIQUE NOT NULL primary key, "
-          "word                     text, "
-          "regular_form             text, "
-          "transcription            text, "
-          "translation              text, "
-          "link_to_sounds_list      integer, "
-          "link_to_praat_markup     integer, "
-          "is_a_regular_form        bool, "
-          "has_paradigm             bool) "
+          "CREATE TABLE dictionary ( "
+              "id                 INTEGER PRIMARY KEY "
+                                         "NOT NULL "
+                                         "UNIQUE, "
+              "word               TEXT, "
+              "regular_form       TEXT, "
+              "transcription      TEXT, "
+              "translation        TEXT, "
+              "default_sound      INTEGER, "
+              "default_praat_pair INTEGER, "
+              "is_a_regular_form  BOOL, "
+              "has_paradigm       BOOL, "
+              "etimology_tag      TEXT  "
+          ");"
           )) {
         qDebug() << "Failed to create dictionary table";
         qDebug() << db.lastError().text();
         return false;
     } else {
         qDebug() << "dictionary table created ok";
+    }
+
+    /* create index for etimology */
+    if (!query.exec(
+          "CREATE INDEX idx_dictionary ON dictionary ( "
+              "etimology_tag COLLATE BINARY ASC  "
+          ");"
+          )) {
+        qDebug() << "Failed to create dictionary table";
+        qDebug() << db.lastError().text();
+        return false;
+    } else {
+        qDebug() << "dictionary etimology index created ok";
     }
 
     /* table phonology */
@@ -92,13 +114,18 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
     /* table dict_blobs_table */
     /* These blobs are not global; they correspond only to dictionary entries */
     if (!query.exec(
-          "create table dict_blobs_table ("
-          "id                       integer UNIQUE NOT NULL primary key, "
-          "type                     integer, "
-          "description              text, "
-          "object                   blob, "
-          "wordid                   integer, "
-          "Foreign key(wordid)      References dictionary(id) )"
+          "CREATE TABLE dict_blobs_table ( "
+              "id          INTEGER PRIMARY KEY "
+                                  "NOT NULL "
+                                  "UNIQUE, "
+              "type        INTEGER NOT NULL, "
+              "description TEXT, "
+              "object      BLOB    NOT NULL, "
+              "wordid      INTEGER NOT NULL, "
+              "FOREIGN KEY ( wordid ) REFERENCES dictionary ( id ) ON DELETE CASCADE "
+                                                                      "ON UPDATE CASCADE "
+                                                                      "MATCH FULL "
+          ");"
           )) {
         qDebug() << "Failed to create blob table";
         qDebug() << db.lastError().text();
