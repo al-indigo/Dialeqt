@@ -1,5 +1,6 @@
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QSqlDriver>
 #include <QVariant>
 #include <QDebug>
 #include "dictdbfactory.h"
@@ -39,28 +40,44 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
     }
     QSqlQuery query(db);
 
+    /*===== TODO: Checking foreign key support ======*/
+
     /*===== Creating tables =========*/
 
     /* table dict_attribues holds info about dictionary itself */
     //TODO: look for consonant strings
     //TODO: check out how to implement versioning support
-    if (!query.exec("create table dict_attributes (id integer primary key, "
-               "dict_identificator text, dict_name text, "
-               "dict_author text, dict_coauthors text, "
-               "dict_classification_tags text, "
-               "dict_description text, dict_legend text)") ) {
+    if (!query.exec(
+          "create table dict_attributes ("
+          "id                        integer UNIQUE NOT NULL primary key, "
+          "dict_identificator        text, "
+          "dict_name                 text, "
+          "dict_author               text, "
+          "dict_coauthors            text, "
+          "dict_classification_tags  text, "
+          "dict_description          text, "
+          "dict_legend               text)"
+          )) {
         qDebug() << "Failed to create dict_attributes table";
         qDebug() << db.lastError().text();
         return false;
-    } else {
+      } else {
         qDebug() << "dict_attributes table created ok";
-    }
-
+      }
+    
     /* table dictionary stores the dictionary and links to foreign blobs */
-    if (!query.exec("create table dictionary (id int primary key, "
-               "word varchar(100), regular_form varchar(100), transcription varchar(100), "
-               "translation varchar(200), link_to_sounds_list int, link_to_praat_markup int, "
-               "is_a_regular_form bool, has_paradigm bool) ")) {
+    if (!query.exec(
+          "create table dictionary ("
+          "id                       integer UNIQUE NOT NULL primary key, "
+          "word                     text, "
+          "regular_form             text, "
+          "transcription            text, "
+          "translation              text, "
+          "link_to_sounds_list      integer, "
+          "link_to_praat_markup     integer, "
+          "is_a_regular_form        bool, "
+          "has_paradigm             bool) "
+          )) {
         qDebug() << "Failed to create dictionary table";
         qDebug() << db.lastError().text();
         return false;
@@ -72,9 +89,17 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
 
     /* table fairy_tails */
 
-    /* table blobs_table */
-    if (!query.exec("create table blobs_table (id int primary key, "
-               "type int, object blob)" )) {
+    /* table dict_blobs_table */
+    /* These blobs are not global; they correspond only to dictionary entries */
+    if (!query.exec(
+          "create table dict_blobs_table ("
+          "id                       integer UNIQUE NOT NULL primary key, "
+          "type                     integer, "
+          "description              text, "
+          "object                   blob, "
+          "wordid                   integer, "
+          "Foreign key(wordid)      References dictionary(id) )"
+          )) {
         qDebug() << "Failed to create blob table";
         qDebug() << db.lastError().text();
         return false;
@@ -85,14 +110,22 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
     /*======== Filling initial data ==============*/
 
     query.prepare("insert into dict_attributes ( "
-                  "dict_identificator, dict_name, "
-                  "dict_author, dict_coauthors, "
+                  "dict_identificator, "
+                  "dict_name, "
+                  "dict_author, "
+                  "dict_coauthors, "
                   "dict_classification_tags, "
-                  "dict_description, dict_legend) "
+                  "dict_description, "
+                  "dict_legend) "
                   "values ( "
-                  ":dictId, :dictName, :dictAuthor, :dictCoathors, "
+                  ":dictId, "
+                  ":dictName, "
+                  ":dictAuthor, "
+                  ":dictCoathors, "
                   ":dictTags, "
-                  ":dictDescription, :dictLegend);");
+                  ":dictDescription, "
+                  ":dictLegend);"
+                  );
     query.bindValue(":dictId", attrs.getDbId());
     query.bindValue(":dictName", attrs.getDictname());
     query.bindValue(":dictAuthor", attrs.getAuthor());
