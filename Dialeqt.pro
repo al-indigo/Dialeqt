@@ -17,7 +17,8 @@ HEADERS  += dialeqt.h \
     dialogcreatenewdictionary.h \
     dictglobalattributes.h \
     dicttabscontainer.h \
-    dictdbfactory.h
+    dictdbfactory.h \
+    customqhash.h
 
 FORMS    += dialeqt.ui \
     dialogcreatenewdictionary.ui

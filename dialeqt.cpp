@@ -25,7 +25,9 @@ void Dialeqt::on_createDictMenuButton_triggered()
 //        DictGlobalAttributes dictAttrs(&dictDialog.getData());
         DictGlobalAttributes dictAttrs(dictDialog.getData());
         dictAttrs.debugPrint();
-        dbFactory.createConnection(dictAttrs.getFilename());
-        dbFactory.initDb(dictAttrs, QSqlDatabase::database(dictAttrs.getFilename()));
+        if (!ui->dictsTabsContainerWidget->addDictTabAndCreate(dictAttrs)) {
+            qDebug() << "cannot create dictionary tab";
+          }
+
     }
 }

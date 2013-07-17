@@ -2,13 +2,21 @@
 #define DICTTABSCONTAINER_H
 
 #include <QTabWidget>
+#include <QSet>
+#include <QSqlRelationalTableModel>
+#include "dictglobalattributes.h"
+#include "dictdbfactory.h"
 
 class DictTabsContainer : public QTabWidget
 {
   Q_OBJECT
+  DictDbFactory dbFactory;
+  QSet<DictGlobalAttributes> dictsOpened;
+
+  void DictTabsContainer::initializeDictModel(QSqlRelationalTableModel *model);
 public:
   explicit DictTabsContainer(QWidget *parent = 0);
-  
+  bool addDictTabAndCreate(DictGlobalAttributes dictAttrs);
 signals:
   
 public slots:

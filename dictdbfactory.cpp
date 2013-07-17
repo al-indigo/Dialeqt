@@ -173,4 +173,5 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
         return true;
     }
 
+    return true;
 }

@@ -41,6 +41,13 @@ public:
                tags(dictCopy.tags),
                description(dictCopy.description) {}
 
+             friend bool operator==(const DictGlobalAttributes &left, const DictGlobalAttributes &right) {
+               if (left.dbId != right.dbId) {
+                   return false;
+                 }
+               return true;
+             }
+
              void debugPrint();
              QString getDbId(void) const { return dbId; }
              QString getFilename(void) const { return filename; }
