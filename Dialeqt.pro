@@ -11,14 +11,17 @@ SOURCES += main.cpp\
     dialogcreatenewdictionary.cpp \
     dictglobalattributes.cpp \
     dicttabscontainer.cpp \
-    dictdbfactory.cpp
+    dictdbfactory.cpp \
+    tabcontents.cpp
 
 HEADERS  += dialeqt.h \
     dialogcreatenewdictionary.h \
     dictglobalattributes.h \
     dicttabscontainer.h \
     dictdbfactory.h \
-    customqhash.h
+    customqhash.h \
+    tabcontents.h
 
 FORMS    += dialeqt.ui \
-    dialogcreatenewdictionary.ui
+    dialogcreatenewdictionary.ui \
+    tabcontents.ui

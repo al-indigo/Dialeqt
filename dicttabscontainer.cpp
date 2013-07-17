@@ -4,6 +4,7 @@
 #include <QTableView>
 #include <QSqlRelationalTableModel>
 #include <QSizePolicy>
+#include "tabcontents.h"
 #include "customqhash.h"
 
 void DictTabsContainer::initializeDictModel(QSqlRelationalTableModel *model) {
@@ -42,10 +43,11 @@ bool DictTabsContainer::addDictTabAndCreate(DictGlobalAttributes dictAttrs)
 
       QTableView *view = new QTableView;
       view->setModel(model);
-//      view->setItemDelegate(new QSqlRelationalDelegate(view));
+      view->setItemDelegate(new QSqlRelationalDelegate(view));
 
 
-      this->addTab(view, dictAttrs.getFilename());
+//      this->addTab(view, dictAttrs.getFilename());
+      this->addTab(new TabContents(), dictAttrs.getDictname());
 
       return true;
 
