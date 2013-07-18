@@ -8,6 +8,12 @@
 #include <QSqlRelationalTableModel>
 #include "tabcontents.h"
 #include "customquerydiagnostics.h"
+#include "legendwindow.h"
+#include "etimologywindow.h"
+#include "phonologywindow.h"
+#include "taleswindow.h"
+#include "paradigmwindow.h"
+#include "playwindow.h"
 
 #include "ui_tabcontents.h"
 
@@ -36,12 +42,54 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
   }
 
   connect(ui->submitButton , SIGNAL(clicked()), this, SLOT(submitWord()));
-
+  connect(ui->legendButton , SIGNAL(clicked()), this, SLOT(showLegend()));
+  connect(ui->etimologyButton , SIGNAL(clicked()), this, SLOT(showEtimology()));
+  connect(ui->paradigmButton , SIGNAL(clicked()), this, SLOT(showParadigm()));
+  connect(ui->playButton , SIGNAL(clicked()), this, SLOT(showPlay()));
+  connect(ui->phonologyButton , SIGNAL(clicked()), this, SLOT(showPhonology()));
+  connect(ui->talesButton , SIGNAL(clicked()), this, SLOT(showTales()));
   model = new QSqlRelationalTableModel(this, db);
   initializeDictModel(model);
   ui->dictionaryTable->setModel(model);
 
 }
+
+bool TabContents::showLegend() {
+  LegendWindow legend(this);
+  legend.exec();
+  return true;
+}
+
+bool TabContents::showEtimology() {
+  EtimologyWindow etimology(this);
+  etimology.exec();
+  return true;
+}
+
+bool TabContents::showParadigm() {
+  ParadigmWindow paradigm(this);
+  paradigm.exec();
+  return true;
+}
+
+bool TabContents::showPlay() {
+  PlayWindow play(this);
+  play.exec();
+  return true;
+}
+
+bool TabContents::showPhonology() {
+  PhonologyWindow phonology(this);
+  phonology.exec();
+  return true;
+}
+
+bool TabContents::showTales() {
+  TalesWindow tales(this);
+  tales.exec();
+  return true;
+}
+
 
 TabContents::~TabContents()
 {

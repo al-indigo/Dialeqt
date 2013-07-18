@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1002</width>
+    <width>1000</width>
     <height>360</height>
    </rect>
   </property>
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
-    <height>0</height>
+    <width>1000</width>
+    <height>360</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -261,6 +261,12 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
@@ -295,6 +301,96 @@
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="groupBoxActions">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>85</height>
+      </size>
+     </property>
+     <property name="title">
+      <string>Действия</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QGroupBox" name="groupBoxActionsOnDict">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>Над словарём</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QToolButton" name="legendButton">
+           <property name="text">
+            <string>Показать легенду словаря</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="phonologyButton">
+           <property name="text">
+            <string>Показать фонологическую легенду</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="talesButton">
+           <property name="text">
+            <string>Сказания</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBoxActionsOnWord">
+        <property name="title">
+         <string>Над словом</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QToolButton" name="paradigmButton">
+           <property name="text">
+            <string>Парадигма слова</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="etimologyButton">
+           <property name="text">
+            <string>Добавить этимологическую связь</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="playButton">
+           <property name="text">
+            <string>Проиграть выбранную аудиозапись</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+     <zorder>toolButton</zorder>
+     <zorder>groupBoxActionsOnDict</zorder>
+     <zorder>groupBoxActionsOnWord</zorder>
     </widget>
    </item>
    <item row="1" column="0">

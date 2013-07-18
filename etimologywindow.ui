@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EtimologyWindow</class>
+ <widget class="QDialog" name="EtimologyWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>599</width>
+    <height>486</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Это слово уже связано со словами в следующих словарях:</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QTableWidget" name="tableWidget">
+        <row>
+         <property name="text">
+          <string/>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string/>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string/>
+         </property>
+        </row>
+        <column>
+         <property name="text">
+          <string>Имя словаря</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Слово</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Транскрипция</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Перевод</string>
+         </property>
+        </column>
+        <item row="0" column="0">
+         <property name="text">
+          <string>Английский общей лексики</string>
+         </property>
+        </item>
+        <item row="0" column="1">
+         <property name="text">
+          <string>alphabet</string>
+         </property>
+        </item>
+        <item row="0" column="2">
+         <property name="text">
+          <string>'ælfəbət</string>
+         </property>
+        </item>
+        <item row="0" column="3">
+         <property name="text">
+          <string>алфавит</string>
+         </property>
+        </item>
+        <item row="1" column="0">
+         <property name="text">
+          <string>Новый французско-русский</string>
+         </property>
+        </item>
+        <item row="1" column="1">
+         <property name="text">
+          <string>alphabet </string>
+         </property>
+        </item>
+        <item row="1" column="2">
+         <property name="text">
+          <string>alfabɛ</string>
+         </property>
+        </item>
+        <item row="1" column="3">
+         <property name="text">
+          <string>алфавит</string>
+         </property>
+        </item>
+        <item row="2" column="0">
+         <property name="text">
+          <string>Испанско-русский</string>
+         </property>
+        </item>
+        <item row="2" column="1">
+         <property name="text">
+          <string>alfabeto </string>
+         </property>
+        </item>
+        <item row="2" column="3">
+         <property name="text">
+          <string>алфавит</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>40</height>
+      </size>
+     </property>
+     <property name="title">
+      <string>Действия</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QToolButton" name="toolButton">
+        <property name="text">
+         <string>Добавить новую связь</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>Закрыть</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

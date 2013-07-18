@@ -27,6 +27,12 @@ signals:
 
 public slots:
   bool submitWord();
+  bool showLegend();
+  bool showEtimology();
+  bool showParadigm();
+  bool showPlay();
+  bool showPhonology();
+  bool showTales();
 
 private:
   Ui::TabContents *ui;

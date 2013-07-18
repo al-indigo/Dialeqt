@@ -1,4 +1,4 @@
-QT       += core gui sql
+QT       += core gui sql webkitwidgets webkit
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -14,7 +14,13 @@ SOURCES += main.cpp\
     dictdbfactory.cpp \
     tabcontents.cpp \
     dictentry.cpp \
-    customquerydiagnostics.cpp
+    customquerydiagnostics.cpp \
+    legendwindow.cpp \
+    phonologywindow.cpp \
+    taleswindow.cpp \
+    paradigmwindow.cpp \
+    etimologywindow.cpp \
+    playwindow.cpp
 
 HEADERS  += dialeqt.h \
     dialogcreatenewdictionary.h \
@@ -24,8 +30,20 @@ HEADERS  += dialeqt.h \
     customqhash.h \
     tabcontents.h \
     dictentry.h \
-    customquerydiagnostics.h
+    customquerydiagnostics.h \
+    legendwindow.h \
+    phonologywindow.h \
+    taleswindow.h \
+    paradigmwindow.h \
+    etimologywindow.h \
+    playwindow.h
 
 FORMS    += dialeqt.ui \
     dialogcreatenewdictionary.ui \
-    tabcontents.ui
+    tabcontents.ui \
+    legendwindow.ui \
+    phonologywindow.ui \
+    taleswindow.ui \
+    paradigmwindow.ui \
+    etimologywindow.ui \
+    playwindow.ui
