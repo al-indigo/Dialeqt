@@ -4,16 +4,7 @@
 #include <QVariant>
 #include <QDebug>
 #include "dictdbfactory.h"
-
-QString getLastExecutedQuery(const QSqlQuery& query) {
-    QString str = query.lastQuery();
-    QMapIterator<QString, QVariant> it(query.boundValues());
-    while (it.hasNext()) {
-        it.next();
-        str.replace(it.key(), it.value().toString());
-    }
-    return str;
-}
+#include "customquerydiagnostics.h"
 
 DictDbFactory::DictDbFactory(QObject *parent) :
     QObject(parent), sqlDriver("QSQLITE")
@@ -137,21 +128,21 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
     /*======== Filling initial data ==============*/
 
     query.prepare("insert into dict_attributes ( "
-                  "dict_identificator, "
-                  "dict_name, "
-                  "dict_author, "
-                  "dict_coauthors, "
-                  "dict_classification_tags, "
-                  "dict_description, "
-                  "dict_legend) "
+                    "dict_identificator, "
+                    "dict_name, "
+                    "dict_author, "
+                    "dict_coauthors, "
+                    "dict_classification_tags, "
+                    "dict_description, "
+                    "dict_legend) "
                   "values ( "
-                  ":dictId, "
-                  ":dictName, "
-                  ":dictAuthor, "
-                  ":dictCoathors, "
-                  ":dictTags, "
-                  ":dictDescription, "
-                  ":dictLegend);"
+                    ":dictId, "
+                    ":dictName, "
+                    ":dictAuthor, "
+                    ":dictCoathors, "
+                    ":dictTags, "
+                    ":dictDescription, "
+                    ":dictLegend);"
                   );
     query.bindValue(":dictId", attrs.getDbId());
     query.bindValue(":dictName", attrs.getDictname());

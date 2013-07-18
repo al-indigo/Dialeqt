@@ -12,7 +12,9 @@ SOURCES += main.cpp\
     dictglobalattributes.cpp \
     dicttabscontainer.cpp \
     dictdbfactory.cpp \
-    tabcontents.cpp
+    tabcontents.cpp \
+    dictentry.cpp \
+    customquerydiagnostics.cpp
 
 HEADERS  += dialeqt.h \
     dialogcreatenewdictionary.h \
@@ -20,7 +22,9 @@ HEADERS  += dialeqt.h \
     dicttabscontainer.h \
     dictdbfactory.h \
     customqhash.h \
-    tabcontents.h
+    tabcontents.h \
+    dictentry.h \
+    customquerydiagnostics.h
 
 FORMS    += dialeqt.ui \
     dialogcreatenewdictionary.ui \

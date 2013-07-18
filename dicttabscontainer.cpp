@@ -7,18 +7,6 @@
 #include "tabcontents.h"
 #include "customqhash.h"
 
-void DictTabsContainer::initializeDictModel(QSqlRelationalTableModel *model) {
-  model->setTable("dictionary");
-  model->setEditStrategy(QSqlTableModel::OnFieldChange);
-
-  model->setHeaderData(0, Qt::Horizontal, QObject::tr("Слово"));
-  model->setHeaderData(1, Qt::Horizontal, QObject::tr("Транскрипция"));
-  model->setHeaderData(2, Qt::Horizontal, QObject::tr("Перевод"));
-  model->setHeaderData(3, Qt::Horizontal, QObject::tr("Звуковой файл"));
-
-  model->select();
-}
-
 
 DictTabsContainer::DictTabsContainer(QWidget *parent) :
   QTabWidget(parent)
@@ -30,7 +18,7 @@ DictTabsContainer::DictTabsContainer(QWidget *parent) :
   qDebug() << "tabs container instantiated";
 }
 
-bool DictTabsContainer::addDictTabAndCreate(DictGlobalAttributes dictAttrs)
+bool DictTabsContainer::createDictTabInitial(DictGlobalAttributes dictAttrs)
 {
   if (!this->dictsOpened.contains(dictAttrs)) {
       dbFactory.createConnection(dictAttrs.getFilename());
@@ -38,16 +26,9 @@ bool DictTabsContainer::addDictTabAndCreate(DictGlobalAttributes dictAttrs)
           return false;
         }
 
-      QSqlRelationalTableModel *model = new QSqlRelationalTableModel(this, QSqlDatabase::database(dictAttrs.getFilename()));
-      this->initializeDictModel(model);
-
-      QTableView *view = new QTableView;
-      view->setModel(model);
-      view->setItemDelegate(new QSqlRelationalDelegate(view));
-
 
 //      this->addTab(view, dictAttrs.getFilename());
-      this->addTab(new TabContents(), dictAttrs.getDictname());
+      this->addTab(new TabContents(dictAttrs, this), dictAttrs.getDictname());
 
       return true;
 
@@ -55,4 +36,14 @@ bool DictTabsContainer::addDictTabAndCreate(DictGlobalAttributes dictAttrs)
       qDebug() << "this dictionary already exists";
       return false;
     }
+}
+
+bool DictTabsContainer::openDictTabInitial(DictGlobalAttributes dictAttrs)
+{
+  return true;
+}
+
+bool DictTabsContainer::createTab(DictGlobalAttributes dictAttrs)
+{
+  return true;
 }

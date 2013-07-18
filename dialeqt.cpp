@@ -25,7 +25,7 @@ void Dialeqt::on_createDictMenuButton_triggered()
 //        DictGlobalAttributes dictAttrs(&dictDialog.getData());
         DictGlobalAttributes dictAttrs(dictDialog.getData());
         dictAttrs.debugPrint();
-        if (!ui->dictsTabsContainerWidget->addDictTabAndCreate(dictAttrs)) {
+        if (!ui->dictsTabsContainerWidget->createDictTabInitial(dictAttrs)) {
             qDebug() << "cannot create dictionary tab";
           }
 

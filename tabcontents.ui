@@ -234,6 +234,9 @@
       </item>
       <item>
        <widget class="QFrame" name="frameSubmit">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -250,7 +253,7 @@
          <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
           <widget class="QPushButton" name="submitButton">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -274,6 +277,9 @@
            <property name="text">
             <string>Добавить слово в словарь</string>
            </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
            <property name="autoDefault">
             <bool>false</bool>
            </property>
@@ -292,20 +298,17 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QTableWidget" name="dictionaryTable"/>
+    <widget class="QTableView" name="dictionaryTable"/>
    </item>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>wordForm_2</tabstop>
   <tabstop>wordForm</tabstop>
   <tabstop>transcritptionForm</tabstop>
   <tabstop>translationForm</tabstop>
   <tabstop>soundButton</tabstop>
   <tabstop>praatButton</tabstop>
   <tabstop>submitButton</tabstop>
-  <tabstop>dictionaryTable</tabstop>
-  <tabstop>wordForm_3</tabstop>
  </tabstops>
  <resources/>
  <connections/>

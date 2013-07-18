@@ -16,7 +16,9 @@ class DictTabsContainer : public QTabWidget
   void DictTabsContainer::initializeDictModel(QSqlRelationalTableModel *model);
 public:
   explicit DictTabsContainer(QWidget *parent = 0);
-  bool addDictTabAndCreate(DictGlobalAttributes dictAttrs);
+  bool createDictTabInitial(DictGlobalAttributes dictAttrs);
+  bool openDictTabInitial(DictGlobalAttributes dictAttrs);
+  bool createTab(DictGlobalAttributes dictAttrs);
 signals:
   
 public slots:
