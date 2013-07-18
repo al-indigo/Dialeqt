@@ -13,7 +13,7 @@ class DictTabsContainer : public QTabWidget
   DictDbFactory dbFactory;
   QSet<DictGlobalAttributes> dictsOpened;
 
-  void DictTabsContainer::initializeDictModel(QSqlRelationalTableModel *model);
+  void initializeDictModel(QSqlRelationalTableModel *model);
 public:
   explicit DictTabsContainer(QWidget *parent = 0);
   bool createDictTabInitial(DictGlobalAttributes dictAttrs);
