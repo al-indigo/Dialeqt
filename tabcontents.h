@@ -36,9 +36,9 @@ public slots:
 
 private:
   Ui::TabContents *ui;
-  DictEntry TabContents::readFields();
+  DictEntry readFields();
   void clearForms(void);
-  void TabContents::initializeDictModel(QSqlRelationalTableModel *model);
+  void initializeDictModel(QSqlRelationalTableModel *model);
 };
 
 #endif // TABCONTENTS_H
