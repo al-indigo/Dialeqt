@@ -6,6 +6,7 @@
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
 #include <QSqlRelationalTableModel>
+#include <QSqlRelationalDelegate>
 #include "tabcontents.h"
 #include "customquerydiagnostics.h"
 #include "legendwindow.h"
@@ -33,6 +34,7 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
       view->setModel(model);
       view->setItemDelegate(new QSqlRelationalDelegate(view));
 
+
 */
 //  db(QSqlDatabase::database(dictAttrs.getFilename()));
 
@@ -41,6 +43,8 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
       return;
   }
 
+  
+//  connect(ui->soundButton, SIGNAL(clicked()), this, SLOT(chooseSound()));
   connect(ui->submitButton , SIGNAL(clicked()), this, SLOT(submitWord()));
   connect(ui->legendButton , SIGNAL(clicked()), this, SLOT(showLegend()));
   connect(ui->etimologyButton , SIGNAL(clicked()), this, SLOT(showEtimology()));
@@ -48,11 +52,39 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
   connect(ui->playButton , SIGNAL(clicked()), this, SLOT(showPlay()));
   connect(ui->phonologyButton , SIGNAL(clicked()), this, SLOT(showPhonology()));
   connect(ui->talesButton , SIGNAL(clicked()), this, SLOT(showTales()));
-  model = new QSqlRelationalTableModel(this, db);
-  initializeDictModel(model);
-  ui->dictionaryTable->setModel(model);
+//  dictModel = new QSqlRelationalTableModel(this, db);
+  dictModel = new QSqlTableModel(this, db);
+  blobsModel = new QSqlTableModel(this, db);
+  initializeBlobsModel(blobsModel);
+  initializeDictModel(dictModel);
 
+
+//  QTableView *view = new QTableView;
+//  view->setModel(model);
+//  view->setItemDelegate(new QSqlRelationalDelegate(view));
+
+  ui->dictionaryTable->setModel(dictModel);
+  ui->dictionaryTable->setColumnHidden(0,true);
+  ui->dictionaryTable->setColumnHidden(2,true);
+  ui->dictionaryTable->setColumnHidden(5,true);
+  ui->dictionaryTable->setColumnHidden(6,true);
+  ui->dictionaryTable->setColumnHidden(7,true);
+  ui->dictionaryTable->setSortingEnabled(true);
+  ui->dictionaryTable->setColumnWidth(1, 120 );
+  ui->dictionaryTable->setColumnWidth(3, 240);
+  ui->dictionaryTable->setColumnWidth(4, 500);
+
+  ui->listView->setModel(blobsModel);
+  ui->listView->setModelColumn(2);
+
+  connect(ui->dictionaryTable , SIGNAL(clicked(QModelIndex)), this, SLOT(filterBlobs()));
+
+//  ui->dictionaryTable->setItemDelegate(new QSqlRelationalDelegate(ui->dictionaryTable));
 }
+
+//bool TabContents::chooseSound() {
+  
+//}
 
 bool TabContents::showLegend() {
   LegendWindow legend(this);
@@ -93,23 +125,107 @@ bool TabContents::showTales() {
 
 TabContents::~TabContents()
 {
-  delete model;
+  delete dictModel;
+  delete blobsModel;
   delete ui;
 }
 
-void TabContents::initializeDictModel(QSqlRelationalTableModel *model) {
+void TabContents::initializeDictModel(QSqlTableModel *model) {
   model->setTable("dictionary");
-  model->setEditStrategy(QSqlTableModel::OnRowChange);
+  model->setEditStrategy(QSqlTableModel::OnFieldChange);
 
   model->setHeaderData(0, Qt::Horizontal, QObject::tr("Номер"));
   model->setHeaderData(1, Qt::Horizontal, QObject::tr("Слово"));
   model->setHeaderData(2, Qt::Horizontal, QObject::tr("Регулярная форма"));
   model->setHeaderData(3, Qt::Horizontal, QObject::tr("Транскрипция"));
   model->setHeaderData(4, Qt::Horizontal, QObject::tr("Перевод"));
-  model->setHeaderData(5, Qt::Horizontal, QObject::tr("Звуковой файл"));
-  model->setHeaderData(6, Qt::Horizontal, QObject::tr("Праат"));
+
+//  model->setRelation(0, QSqlRelation("dict_blobs_table", "name", "wordid"));
+//  model->setFilter("relTblAl_0.'wordid' = dictionary.'id'");
+//  model->setRelation(6, QSqlRelation("dict_blobs_table", "wordid", "description"));
+  qDebug() << model->query().lastQuery();
+  model->select();
+  qDebug() << model->query().lastQuery();
+  qDebug() << model->query().result();
+}
+
+bool TabContents::filterBlobs() {
+  qDebug() << "filtering blobs";
+  QString tmp = "dict_blobs_table.wordid = ";
+
+  QModelIndexList test = ui->dictionaryTable->selectionModel()->selection().indexes();
+  int row = test.at(0).row();
+  this->dictModel->data(this->dictModel->index(row,0));
+  QString param = this->dictModel->data(this->dictModel->index(row,0)).toString();
+  tmp.append(param);
+  const QString filter(tmp);
+  blobsModel->setFilter(filter);
+  qDebug() << blobsModel->query().lastQuery();
+  qDebug() << blobsModel->query().result();
+
+  return true;
+}
+
+void TabContents::initializeBlobsModel(QSqlTableModel *model) {
+  model->setTable("dict_blobs_table");
+  model->setEditStrategy(QSqlTableModel::OnFieldChange);
+
+  model->setHeaderData(0, Qt::Horizontal, QObject::tr("Номер"));
+  model->setHeaderData(1, Qt::Horizontal, QObject::tr("Тип"));
+  model->setHeaderData(2, Qt::Horizontal, QObject::tr("Имя"));
+  model->setHeaderData(3, Qt::Horizontal, QObject::tr("Описание"));
+  model->setHeaderData(4, Qt::Horizontal, QObject::tr("Объект"));
+  model->setHeaderData(5, Qt::Horizontal, QObject::tr("Ссылка на слово"));
 
   model->select();
+
+  /* testing purposes */
+  int row = model->rowCount();
+  model->insertRows(row,1);
+  model->setData(model->index(row, 1), 1);
+  model->setData(model->index(row, 2), "blob1");
+  model->setData(model->index(row, 3), " первого типа со ссылкой на первый пункт");
+  model->setData(model->index(row, 4), "выаываывыва");
+  model->setData(model->index(row, 5), 1);
+
+  model->submitAll();
+  model->database().commit();
+
+  row = model->rowCount();
+  model->insertRows(row,1);
+  model->setData(model->index(row, 1), 1);
+  model->setData(model->index(row, 2), "blob2");
+  model->setData(model->index(row, 3), " первого типа без ссылки");
+  model->setData(model->index(row, 4), "выаываывыва");
+  model->setData(model->index(row, 5), NULL);
+
+  model->submitAll();
+  model->database().commit();
+
+  row = model->rowCount();
+  model->insertRows(row,1);
+  model->setData(model->index(row, 1), 1);
+  model->setData(model->index(row, 2), "blob3");
+  model->setData(model->index(row, 3), " первого типа со ссылкой на первый пункт");
+  model->setData(model->index(row, 4), "выаываывsdaыва");
+  model->setData(model->index(row, 5), 1);
+
+  model->submitAll();
+  model->database().commit();
+
+  row = model->rowCount();
+  model->insertRows(row,1);
+  model->setData(model->index(row, 1), 2);
+  model->setData(model->index(row, 2), "blob4");
+  model->setData(model->index(row, 3), " второго типа без ссылки");
+  model->setData(model->index(row, 4), "выаываывыва");
+  model->setData(model->index(row, 5), 12);
+
+  model->submitAll();
+  model->database().commit();
+
+  model->select();
+
 }
 
 DictEntry TabContents::readFields()
@@ -127,10 +243,11 @@ DictEntry TabContents::readFields()
 bool TabContents::submitWord()
 {
   /* check that we have at least one filled field */
+
   DictEntry entry(readFields());
   if (entry.isEmpty()) {
       QMessageBox errormsg;
-      errormsg.setText("Вы должны заполнить хотя бы из текстовых полей для создания слова");
+      errormsg.setText("Вы должны заполнить хотя бы одно из текстовых полей для создания слова");
       errormsg.setIcon(QMessageBox::Critical);
       errormsg.setDefaultButton(QMessageBox::Ok);
       errormsg.exec();
@@ -138,47 +255,24 @@ bool TabContents::submitWord()
     }
   qDebug() << "Now we should get an entry to sqlite";
 
-/*  QSqlQuery query(db);
-  query.prepare("insert into dictionary("
-                   "word, "
-                   "regular_form, "
-                   "transcription, "
-                   "translation, "
-                   "is_a_regular_form, "
-                   "has_paradigm ) "
-                 "values ("
-                   ":word, "
-                   ":transcription, "
-                   ":transcription, "
-                   ":translation, "
-                   "1, "
-                   "0 )"
-                 );
-  query.bindValue(":word", entry.getWord());
-  query.bindValue(":transcription", entry.getTranscription());
-  query.bindValue(":translation", entry.getTranslation());
 
-  if (!query.exec()) {
-      qDebug() << "Failed to add word";
-      qDebug() << "Query was the following: " << getLastExecutedQuery(query);
-      qDebug() << db.lastError().text();
+  QSqlRecord record = dictModel->record();
+  record.setValue(1, entry.getWord());
+  qDebug() << "after set data: " << dictModel->query().lastQuery();
+  record.setValue(2, entry.getTranscription());
+  record.setValue(3, entry.getTranscription());
+  record.setValue(4, entry.getTranslation());
+  record.setValue(5, true);
+  record.setValue(6, false);
+  dictModel->insertRecord(-1, record);
 
-      this->clearForms();
-      return false;
-  }
-  */
-  int row = model->rowCount();
-  qDebug() << "rowcount " << row;
-  model->insertRows(row,1);
-  model->setData(model->index(row, 1), entry.getWord());
-  if(model->submitAll()) {
-        model->database().commit();
-    }
-//  model->setQuery(query);
-//  model->insertRecord(-1, query.record());
-//  model->query().record();
-  //model->insertRowIntoTable(model->query().record());
-//  QSqlRecord rec;
+
+
+  dictModel->submitAll();
+  qDebug() << dictModel->query().lastQuery();
+//  dictModel->database().commit();
+  qDebug() << "Executed the query on commit: " << dictModel->query().lastQuery();
+  dictModel->select();
 
   this->clearForms();
   return true;

@@ -7,6 +7,7 @@
 #include <QSqlRelationalTableModel>
 #include "dictglobalattributes.h"
 #include "dictentry.h"
+#include "editablesqlmodel.h"
 
 namespace Ui {
   class TabContents;
@@ -17,7 +18,8 @@ class TabContents : public QWidget
   Q_OBJECT
   DictGlobalAttributes dictAttrs;
   QSqlDatabase db;
-  QSqlRelationalTableModel *model;
+  QSqlTableModel *dictModel;
+  QSqlTableModel *blobsModel;
 
 public:
   explicit TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent = 0);
@@ -33,12 +35,15 @@ public slots:
   bool showPlay();
   bool showPhonology();
   bool showTales();
+  bool filterBlobs();
 
 private:
   Ui::TabContents *ui;
   DictEntry readFields();
   void clearForms(void);
-  void initializeDictModel(QSqlRelationalTableModel *model);
+  void initializeDictModel(QSqlTableModel *model);
+  void initializeBlobsModel(QSqlTableModel *model);
+
 };
 
 #endif // TABCONTENTS_H
