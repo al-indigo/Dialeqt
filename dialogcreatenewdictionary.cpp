@@ -1,4 +1,5 @@
 #include <QDateTime>
+#include <QDir>
 
 #include "dialogcreatenewdictionary.h"
 #include "ui_dialogcreatenewdictionary.h"
@@ -18,7 +19,8 @@ DialogCreateNewDictionary::~DialogCreateNewDictionary()
 
 DictGlobalAttributes DialogCreateNewDictionary::getData()
 {
-  this->filename = ui->dict_filename->text();
+  QDir dictsDir = QDir("dictionaries");
+  this->filename = dictsDir.absoluteFilePath(ui->dict_filename->text()).append(".sqlite");
   this->dictname = ui->dict_name->text();
   this->author = ui->dict_author->text();
   QStringList credits_list = ui->dict_credits->text().split(",");

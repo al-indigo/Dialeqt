@@ -63,7 +63,7 @@
     </property>
     <addaction name="createDictMenuButton"/>
     <addaction name="separator"/>
-    <addaction name="action"/>
+    <addaction name="openDictMenuButton"/>
     <addaction name="action_2"/>
     <addaction name="separator"/>
     <addaction name="action_4"/>
@@ -116,7 +116,7 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="action">
+  <action name="openDictMenuButton">
    <property name="text">
     <string>Открыть словарь</string>
    </property>

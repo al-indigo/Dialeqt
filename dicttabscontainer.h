@@ -17,7 +17,7 @@ class DictTabsContainer : public QTabWidget
 public:
   explicit DictTabsContainer(QWidget *parent = 0);
   bool createDictTabInitial(DictGlobalAttributes dictAttrs);
-  bool openDictTabInitial(DictGlobalAttributes dictAttrs);
+  bool openDictTabInitial(DictGlobalAttributes & dictAttrs, const QString& filename);
   bool createTab(DictGlobalAttributes dictAttrs);
 signals:
   

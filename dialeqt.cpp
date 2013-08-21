@@ -3,6 +3,8 @@
 #include "dialogcreatenewdictionary.h"
 #include "dictdbfactory.h"
 
+#include "QFileDialog"
+
 Dialeqt::Dialeqt(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Dialeqt)
@@ -29,5 +31,15 @@ void Dialeqt::on_createDictMenuButton_triggered()
             qDebug() << "cannot create dictionary tab";
           }
 
+    }
+}
+
+void Dialeqt::on_openDictMenuButton_triggered()
+{
+  QString dictfilename = QFileDialog::getOpenFileName(this, tr("Открыть словарь"), "", tr("Files(*.sqlite)"));
+  qDebug() << dictfilename;
+  DictGlobalAttributes dictAttrs;
+  if (!ui->dictsTabsContainerWidget->openDictTabInitial(dictAttrs, dictfilename)) {
+      qDebug() << "cannot create dictionary tab";
     }
 }

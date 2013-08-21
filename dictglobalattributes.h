@@ -8,7 +8,7 @@ class DictGlobalAttributes : public QObject
 {
     Q_OBJECT
     QString dbId;
-    QString filename;
+    QString filename; //full path with filename
     QString dictname;
     QString author;
     QSet <QString> coauthors;
@@ -48,6 +48,21 @@ public:
                return true;
              }
 
+             DictGlobalAttributes &operator=(const DictGlobalAttributes& right) {
+               if (this == &right) {
+                   return *this;
+               }
+               dbId = right.dbId;
+               filename = right.filename;
+               dictname = right.dictname;
+               author = right.author;
+               coauthors = right.coauthors;
+               tags = right.tags;
+               description = right.description;
+               return *this;
+             }
+
+
              void debugPrint();
              QString getDbId(void) const { return dbId; }
              QString getFilename(void) const { return filename; }
@@ -64,7 +79,6 @@ public slots:
 
 private:
 
-    
 };
 
 #endif // DICTGLOBALATTRIBUTES_H

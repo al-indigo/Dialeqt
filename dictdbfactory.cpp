@@ -2,7 +2,9 @@
 #include <QSqlQuery>
 #include <QSqlDriver>
 #include <QVariant>
+#include <QDir>
 #include <QDebug>
+
 #include "dictdbfactory.h"
 #include "customquerydiagnostics.h"
 
@@ -12,11 +14,29 @@ DictDbFactory::DictDbFactory(QObject *parent) :
 }
 
 QSqlDatabase DictDbFactory::createConnection(const QString &connectionName) {
+    QDir dictsDir = QDir("dictionaries");
+    if (!dictsDir.exists()) {
+        qDebug() << "Dictionaries directory doesn't exist";
+        if (!dictsDir.mkdir("dictionaries")) {
+            qDebug() << "Can't create directory for dicts; maybe insufficient privileges";
+            //TODO: decide if I want to make exceptions.
+            return QSqlDatabase::QSqlDatabase(); //now I'm returning invalid database connection object
+        } else {
+            qDebug() << "Created dictionaries directory";
+        }
+    } else {
+        qDebug() << "Dictionaries directory exists";
+    }
+
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", connectionName);
     db.setDatabaseName(connectionName);
     if (!db.open()) {
+        qDebug() << "Can't create db " << db.databaseName();
         db.lastError();
 //        QMessageBox::critical(0, qApp->tr("Не удаётся открыть/создать файл словаря."),
+    }
+    if (!db.isValid()) {
+        qDebug() << "Connection to database is invalid " << db.connectOptions() << db.databaseName() << db.isOpenError();
     }
     openedConnections.append(connectionName);
 //    db.driver()->hasFeature(QSqlDriver::foreign)
