@@ -93,7 +93,8 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
               "translation        TEXT, "
               "is_a_regular_form  BOOL, "
               "has_paradigm       BOOL, "
-              "etimology_tag      TEXT  "
+              "etimology_tag      TEXT,  "
+              "etimology dict     INTEGER "
           ");"
           )) {
         qDebug() << "Failed to create dictionary table";

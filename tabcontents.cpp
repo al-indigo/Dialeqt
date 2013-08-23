@@ -7,6 +7,8 @@
 #include <QSqlTableModel>
 #include <QSqlRelationalTableModel>
 #include <QSqlRelationalDelegate>
+#include <QFileDialog>
+
 #include "tabcontents.h"
 #include "customquerydiagnostics.h"
 #include "legendwindow.h"
@@ -23,20 +25,11 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
   dictAttrs(_dictAttrs),
   QWidget(parent),
   db(QSqlDatabase::database(dictAttrs.getFilename())),
-  ui(new Ui::TabContents)
+  ui(new Ui::TabContents),
+  soundChosen(false),
+  praatChosen(false)
 {
   ui->setupUi(this);
-/*
- *      QSqlRelationalTableModel *model = new QSqlRelationalTableModel(this, QSqlDatabase::database(dictAttrs.getFilename()));
-      this->initializeDictModel(model);
-
-      QTableView *view = new QTableView;
-      view->setModel(model);
-      view->setItemDelegate(new QSqlRelationalDelegate(view));
-
-
-*/
-//  db(QSqlDatabase::database(dictAttrs.getFilename()));
 
   if (!db.isValid()) {
       qDebug() << "Error during tab creation: Database is " << db.isOpen() << " and it's because " << db.isOpenError();
@@ -44,7 +37,7 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
   }
 
   
-//  connect(ui->soundButton, SIGNAL(clicked()), this, SLOT(chooseSound()));
+  connect(ui->soundButton, SIGNAL(clicked()), this, SLOT(chooseSound()));
   connect(ui->submitButton , SIGNAL(clicked()), this, SLOT(submitWord()));
   connect(ui->legendButton , SIGNAL(clicked()), this, SLOT(showLegend()));
   connect(ui->etimologyButton , SIGNAL(clicked()), this, SLOT(showEtimology()));
@@ -54,14 +47,9 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
   connect(ui->talesButton , SIGNAL(clicked()), this, SLOT(showTales()));
 //  dictModel = new QSqlRelationalTableModel(this, db);
   dictModel = new QSqlTableModel(this, db);
-  blobsModel = new QSqlTableModel(this, db);
-  initializeBlobsModel(blobsModel);
+  soundsModel = new QSqlTableModel(this, db);
+  initializeSoundsModel(soundsModel);
   initializeDictModel(dictModel);
-
-
-//  QTableView *view = new QTableView;
-//  view->setModel(model);
-//  view->setItemDelegate(new QSqlRelationalDelegate(view));
 
   ui->dictionaryTable->setModel(dictModel);
   ui->dictionaryTable->setColumnHidden(0,true);
@@ -69,22 +57,34 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
   ui->dictionaryTable->setColumnHidden(5,true);
   ui->dictionaryTable->setColumnHidden(6,true);
   ui->dictionaryTable->setColumnHidden(7,true);
+  ui->dictionaryTable->setColumnHidden(8,true);
   ui->dictionaryTable->setSortingEnabled(true);
-  ui->dictionaryTable->setColumnWidth(1, 120 );
-  ui->dictionaryTable->setColumnWidth(3, 240);
-  ui->dictionaryTable->setColumnWidth(4, 500);
+  ui->dictionaryTable->setColumnWidth(1, 100 );
+  ui->dictionaryTable->setColumnWidth(3, 200);
+  ui->dictionaryTable->setColumnWidth(4, 350);
 
-  ui->listView->setModel(blobsModel);
-  ui->listView->setModelColumn(2);
+  ui->soundsList->setModel(soundsModel);
+  ui->soundsList->setModelColumn(2);
 
   connect(ui->dictionaryTable , SIGNAL(clicked(QModelIndex)), this, SLOT(filterBlobs()));
 
-//  ui->dictionaryTable->setItemDelegate(new QSqlRelationalDelegate(ui->dictionaryTable));
 }
 
-//bool TabContents::chooseSound() {
-  
-//}
+bool TabContents::chooseSound() {
+  if (!this->soundChosen) {
+      this->soundFilename = QFileDialog::getOpenFileName(this, tr("Выберите звуковой файл для вставки в словарь"), "", tr("Звуковые файлы (*.mp3 *.wav)"));
+      qDebug() << "Sound file selected: " << this->soundFilename;
+      if (this->soundFilename.size()) {
+        ui->soundButton->setText("Сбросить звук?");
+        this->soundChosen = true;
+      }
+  } else {
+      this->soundFilename.clear();
+      ui->soundButton->setText("Выберите звуковой файл");
+      this->soundChosen = false;
+  }
+  return true;
+}
 
 bool TabContents::showLegend() {
   LegendWindow legend(this);
@@ -126,7 +126,7 @@ bool TabContents::showTales() {
 TabContents::~TabContents()
 {
   delete dictModel;
-  delete blobsModel;
+  delete soundsModel;
   delete ui;
 }
 
@@ -151,22 +151,22 @@ void TabContents::initializeDictModel(QSqlTableModel *model) {
 
 bool TabContents::filterBlobs() {
   qDebug() << "filtering blobs";
-  QString tmp = "dict_blobs_table.wordid = ";
+  QString tmp = "dict_blobs_table.type = 1 and dict_blobs_table.wordid = ";
 
-  QModelIndexList test = ui->dictionaryTable->selectionModel()->selection().indexes();
-  int row = test.at(0).row();
-  this->dictModel->data(this->dictModel->index(row,0));
+  QModelIndexList model_index = ui->dictionaryTable->selectionModel()->selection().indexes();
+  int row = model_index.at(0).row();
+//  this->dictModel->data(this->dictModel->index(row,0));
   QString param = this->dictModel->data(this->dictModel->index(row,0)).toString();
   tmp.append(param);
   const QString filter(tmp);
-  blobsModel->setFilter(filter);
-  qDebug() << blobsModel->query().lastQuery();
-  qDebug() << blobsModel->query().result();
+  soundsModel->setFilter(filter);
+  qDebug() << soundsModel->query().lastQuery();
+  qDebug() << soundsModel->query().result();
 
   return true;
 }
 
-void TabContents::initializeBlobsModel(QSqlTableModel *model) {
+void TabContents::initializeSoundsModel(QSqlTableModel *model) {
   model->setTable("dict_blobs_table");
   model->setEditStrategy(QSqlTableModel::OnFieldChange);
 
@@ -179,48 +179,14 @@ void TabContents::initializeBlobsModel(QSqlTableModel *model) {
 
   model->select();
 
-  /* testing purposes */
   int row = model->rowCount();
   model->insertRows(row,1);
   model->setData(model->index(row, 1), 1);
-  model->setData(model->index(row, 2), "blob1");
-  model->setData(model->index(row, 3), " первого типа со ссылкой на первый пункт");
-  model->setData(model->index(row, 4), "выаываывыва");
-  model->setData(model->index(row, 5), 1);
-
-  model->submitAll();
-  model->database().commit();
-
-  row = model->rowCount();
-  model->insertRows(row,1);
-  model->setData(model->index(row, 1), 1);
-  model->setData(model->index(row, 2), "blob2");
-  model->setData(model->index(row, 3), " первого типа без ссылки");
-  model->setData(model->index(row, 4), "выаываывыва");
-  model->setData(model->index(row, 5), NULL);
-
-  model->submitAll();
-  model->database().commit();
-
-  row = model->rowCount();
-  model->insertRows(row,1);
-  model->setData(model->index(row, 1), 1);
-  model->setData(model->index(row, 2), "blob3");
-  model->setData(model->index(row, 3), " первого типа со ссылкой на первый пункт");
-  model->setData(model->index(row, 4), "выаываывsdaыва");
-  model->setData(model->index(row, 5), 1);
-
-  model->submitAll();
-  model->database().commit();
-
-  row = model->rowCount();
-  model->insertRows(row,1);
-  model->setData(model->index(row, 1), 2);
-  model->setData(model->index(row, 2), "blob4");
-  model->setData(model->index(row, 3), " второго типа без ссылки");
-  model->setData(model->index(row, 4), "выаываывыва");
-  model->setData(model->index(row, 5), 12);
-
+  model->setData(model->index(row, 2), "none-selected");
+  model->setData(model->index(row, 3), "Выберите слово");
+  model->setData(model->index(row, 4), "");
+  model->setData(model->index(row, 5), 0);
+  model->setFilter("dict_blobs_table.type = 1");
   model->submitAll();
   model->database().commit();
 
@@ -228,31 +194,85 @@ void TabContents::initializeBlobsModel(QSqlTableModel *model) {
 
 }
 
+void TabContents::initializePraatModel(QSqlTableModel *model) {
+
+}
+
+
+void errorMsg (const QString& error_msg){
+  QMessageBox errormsg;
+  errormsg.setText(error_msg);
+  errormsg.setIcon(QMessageBox::Critical);
+  errormsg.setDefaultButton(QMessageBox::Ok);
+  errormsg.exec();
+  return;
+}
+
+bool TabContents::isValidInput(void) {
+  // 1 -- text inputs are blank
+  if (ui->wordForm->text().isEmpty() && ui->transcritptionForm->text().isEmpty() && ui->translationForm->text().isEmpty()) {
+      errorMsg("Вы должны заполнить хотя бы одно из текстовых полей для создания слова");
+      return false;
+  }
+  // 2 -- sound is selected, but no description
+  if (!this->soundFilename.isEmpty() && ui->soundDescription->text().isEmpty()) {
+      errorMsg("Вы выбрали звук, но не написали описание: так нельзя");
+      return false;
+  }
+  // 3 -- sound is not selected, but description is ready
+  if (this->soundFilename.isEmpty() && !ui->soundDescription->text().isEmpty()) {
+      errorMsg("Вы описали аудиозапись, но не выбрали её: так нельзя");
+      return false;
+  }
+  // 4 -- sound file doesn't exist
+  if (!this->soundFilename.isEmpty() && !QFile(this->soundFilename).exists()) {
+      errorMsg("Кажется, аудиофайл изчез, пока вы заполняли остальные поля. Сбросьте выбор и попробуйте ещё раз");
+      return false;
+  }
+  // 5 -- praat is selected, but no description
+  if ( !(this->praatFilenameSound.isEmpty() || this->praatFilenameMarkup.isEmpty()) && ui->praatDescription->text().isEmpty()) {
+      errorMsg("Вы выбрали файлы для Praat, но не описали их; так нельзя");
+      return false;
+  }
+  // 6 -- praat is not selected, but description is ready
+  if ((this->praatFilenameSound.isEmpty() || this->praatFilenameMarkup.isEmpty()) && !ui->praatDescription->text().isEmpty()) {
+      errorMsg("Вы описали файлы для Praat, но не выбрали их, это нужно сделать");
+      return false;
+  }
+  // 7 -- praat markup doesn't exist
+  if (!(this->praatFilenameSound.isEmpty()) && QFile(this->praatFilenameMarkup).exists()) {
+      errorMsg("Похоже, к файлу разметки Praat нет файла звука. Проверьте, что они называются одинаково (за исключением расширений .wav и .praat) и что оба файла лежат в одной и той же папке");
+      return false;
+  }
+  // 8 -- praat sound doesn't exist
+  if (!(this->praatFilenameSound.isEmpty()) && !QFile(this->praatFilenameSound).exists()) {
+      errorMsg("Похоже, что вы выбрали файл звука, но парного файла разметки к нему не существует. Проверьте, что они называются одинаково (за исключением расширений .wav и .praat) и что оба файла лежат в одной и той же папке");
+      return false;
+  }
+
+  // 0 -- everything is ok
+  return true;
+}
+
 DictEntry TabContents::readFields()
 {
   QString word(ui->wordForm->text());
   QString transcription(ui->transcritptionForm->text());
   QString translation(ui->translationForm->text());
-  QString soundFilename;
-  QPair <QString, QString> praatPair;
-
-  DictEntry entry(this, word, transcription, translation, soundFilename, praatPair.first, praatPair.second);
+  QString soundDescription(ui->soundDescription->text());
+  QString praatDescription(ui->praatDescription->text());
+  DictEntry entry(this, word, transcription, translation, soundFilename, praatFilenameMarkup, praatFilenameSound);
   return entry;
 }
 
 bool TabContents::submitWord()
 {
   /* check that we have at least one filled field */
+  if (!this->isValidInput()) {
+      return false;
+  }
 
   DictEntry entry(readFields());
-  if (entry.isEmpty()) {
-      QMessageBox errormsg;
-      errormsg.setText("Вы должны заполнить хотя бы одно из текстовых полей для создания слова");
-      errormsg.setIcon(QMessageBox::Critical);
-      errormsg.setDefaultButton(QMessageBox::Ok);
-      errormsg.exec();
-      return false;
-    }
   qDebug() << "Now we should get an entry to sqlite";
 
 
