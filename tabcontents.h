@@ -20,6 +20,7 @@ class TabContents : public QWidget
   QSqlDatabase db;
   QSqlTableModel *dictModel;
   QSqlTableModel *soundsModel;
+  QSqlTableModel *praatModel;
 
   bool soundChosen;
   bool praatChosen;
@@ -27,9 +28,6 @@ class TabContents : public QWidget
   QString soundFilename;
   QString praatFilenameMarkup;
   QString praatFilenameSound;
-
-  QByteArray soundCompressed;
-  QByteArray praatCompressed; // struct is the following: [int64 points to termination of markup][compressed_markup][compressed_sound]
 
 public:
   explicit TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent = 0);
@@ -47,6 +45,7 @@ public slots:
   bool showTales();
   bool filterBlobs();
   bool chooseSound();
+  bool choosePraat();
 private:
   Ui::TabContents *ui;
   DictEntry readFields();

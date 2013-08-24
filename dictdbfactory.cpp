@@ -81,7 +81,7 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
       }
 
     
-    /* table dictionary stores the dictionary and links to foreign blobs */
+    /* table dictionary stores the dictionary */
     if (!query.exec(
           "CREATE TABLE dictionary ( "
               "id                 INTEGER PRIMARY KEY "
@@ -121,29 +121,49 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
 
     /* table fairy_tails */
 
-    /* table dict_blobs_table */
+
+    /* table blobs */
+    /* These blobs are global; they store both dict blobs and globals */
+    if (!query.exec(
+          "CREATE TABLE blobs ( "
+              "id          INTEGER PRIMARY KEY "
+                                  "NOT NULL "
+                                  "UNIQUE, "
+              "mainblob    BLOB NOT NULL,"
+              "secblob     BLOB"
+          ");"
+          )) {
+        qDebug() << "Failed to create blobs table";
+        qDebug() << db.lastError().text();
+        return false;
+    } else {
+        qDebug() << "Blobs table created ok";
+    }
+
+
+    /* table dict_blobs_description */
     /* These blobs are not global; they correspond only to dictionary entries */
     if (!query.exec(
-          "CREATE TABLE dict_blobs_table ( "
+          "CREATE TABLE dict_blobs_description ( "
               "id          INTEGER PRIMARY KEY "
                                   "NOT NULL "
                                   "UNIQUE, "
               "type        INTEGER NOT NULL, "
               "name        TEXT NOT NULL, "
               "description TEXT, "
-              "object      BLOB    NOT NULL, "
-              "wordid      INTEGER NOT NULL "
-//              "wordid      INTEGER NOT NULL, "
-//              "FOREIGN KEY ( wordid ) REFERENCES dictionary ( id ) ON DELETE CASCADE "
-//                                                                      "ON UPDATE CASCADE "
-//                                                                      "MATCH FULL "
+//              "object      BLOB    NOT NULL, "
+              "wordid      INTEGER NOT NULL, "
+              "blobid      INTEGER NOT NULL, "
+              "FOREIGN KEY ( blobid ) REFERENCES blobs ( id ) ON DELETE CASCADE "
+                                                                      "ON UPDATE CASCADE "
+                                                                      "MATCH FULL "
           ");"
           )) {
-        qDebug() << "Failed to create blob table";
+        qDebug() << "Failed to create blobs description table";
         qDebug() << db.lastError().text();
         return false;
     } else {
-        qDebug() << "Blob table created ok";
+        qDebug() << "Blobs description table created ok";
     }
 
     /*======== Filling initial data ==============*/
