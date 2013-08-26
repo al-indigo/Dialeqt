@@ -56,14 +56,14 @@ public:
 
   QString getSoundDescription(void) const { return soundDescription; }
 
-  QString getBasePraatSoundFilename (void) const {
-    QFileInfo fileInfo(this->praatFilenameSound);
+  QString getBasePraatMarkupFilename (void) const {
+    QFileInfo fileInfo(this->praatFilenameMarkup);
     return fileInfo.baseName();
   }
 
-//it's redundunt func, just in case
-  QString getBasePraatMarkupFilename (void) const {
-    QFileInfo fileInfo(this->praatFilenameMarkup);
+  //it's redundunt func, just in case
+  QString getBasePraatSoundFilename (void) const {
+    QFileInfo fileInfo(this->praatFilenameSound);
     return fileInfo.baseName();
   }
 

@@ -47,9 +47,12 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
   connect(ui->playButton , SIGNAL(clicked()), this, SLOT(showPlay()));
   connect(ui->phonologyButton , SIGNAL(clicked()), this, SLOT(showPhonology()));
   connect(ui->talesButton , SIGNAL(clicked()), this, SLOT(showTales()));
-//  dictModel = new QSqlRelationalTableModel(this, db);
+
   dictModel = new QSqlTableModel(this, db);
   soundsModel = new QSqlTableModel(this, db);
+  praatModel = new QSqlTableModel(this, db);
+
+  initializePraatModel(praatModel);
   initializeSoundsModel(soundsModel);
   initializeDictModel(dictModel);
 
@@ -67,6 +70,9 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
 
   ui->soundsList->setModel(soundsModel);
   ui->soundsList->setModelColumn(2);
+
+  ui->praatList->setModel(praatModel);
+  ui->praatList->setModelColumn(2);
 
   connect(ui->dictionaryTable , SIGNAL(clicked(QModelIndex)), this, SLOT(filterBlobs()));
 
@@ -130,7 +136,9 @@ bool TabContents::showParadigm() {
 }
 
 bool TabContents::showPlay() {
-  PlayWindow play(this);
+  QStringList playlist;
+  playlist.append("C:/Users/al/QTProjects/01. Air - Playground Love.mp3");
+  PlayWindow play(playlist,this);
   play.exec();
   return true;
 }
@@ -152,6 +160,7 @@ TabContents::~TabContents()
 {
   delete dictModel;
   delete soundsModel;
+  delete praatModel;
   delete ui;
 }
 
@@ -176,17 +185,22 @@ void TabContents::initializeDictModel(QSqlTableModel *model) {
 
 bool TabContents::filterBlobs() {
   qDebug() << "filtering blobs";
-  QString tmp = "dict_blobs_description.type = 1 and dict_blobs_description.wordid = ";
+  QString filterSoundsQuery = "dict_blobs_description.type = 1 and dict_blobs_description.wordid = ";
+  QString filterPraatQuery = "dict_blobs_description.type = 2 and dict_blobs_description.wordid = ";
 
   QModelIndexList model_index = ui->dictionaryTable->selectionModel()->selection().indexes();
   int row = model_index.at(0).row();
-//  this->dictModel->data(this->dictModel->index(row,0));
   QString param = this->dictModel->data(this->dictModel->index(row,0)).toString();
-  tmp.append(param);
-  const QString filter(tmp);
-  soundsModel->setFilter(filter);
+  filterSoundsQuery.append(param);
+  filterPraatQuery.append(param);
+  const QString filtersounds(filterSoundsQuery);
+  const QString filterpraat(filterPraatQuery);
+  soundsModel->setFilter(filtersounds);
+  praatModel->setFilter(filterpraat);
   qDebug() << soundsModel->query().lastQuery();
+  qDebug() << praatModel->query().lastQuery();
   qDebug() << soundsModel->query().result();
+  qDebug() << praatModel->query().result();
 
   return true;
 }
@@ -331,7 +345,7 @@ bool TabContents::submitWord()
   QSqlRecord record = dictModel->record();
   record.setValue("word", entry.getWord());
   record.setValue("regular_form" , entry.getTranscription());
-  record.setValue("transription" , entry.getTranscription());
+  record.setValue("transcription" , entry.getTranscription());
   record.setValue("translation", entry.getTranslation());
   record.setValue("is_a_regular_form" , true);
   record.setValue("has_paradigm", false);
@@ -346,7 +360,6 @@ bool TabContents::submitWord()
 
   if (this->soundChosen || this->praatChosen) {
     QVariant soundblobid;
-    QVariant praatblobid;
 
     // here we need to push sound to blobs table, get id of blob and make a record in blobs_description_table
     if (this->soundChosen) {
@@ -358,6 +371,7 @@ bool TabContents::submitWord()
             qDebug() << "Can't insert sound blob";
             qDebug() << "Query was the following: " << getLastExecutedQuery(soundBlobQuery);
             qDebug() << db.lastError().text();
+            this->clearForms();
             return false;
         }
         soundblobid = soundBlobQuery.lastInsertId();
@@ -376,20 +390,55 @@ bool TabContents::submitWord()
             qDebug() << "Can't insert sound blob description";
             qDebug() << "Query was the following: " << getLastExecutedQuery(soundDescriptionQuery);
             qDebug() << db.lastError().text();
+            this->clearForms();
             return false;
         }
         qDebug() << "Successfully submitted sound";
     }
-
-
   }
 
-  record.clear();
+  if (this->praatChosen) {
+      QVariant praatblobid;
 
+      QSqlQuery praatBlobQuery(db);
+      praatBlobQuery.prepare("INSERT INTO blobs(mainblob,secblob) values (:praatmarkupblob,:praatsoundblob)");
+      praatBlobQuery.bindValue(":praatmarkupblob", *(entry.getPraatMarkupPointer()));
+      praatBlobQuery.bindValue(":praatsoundblob", *(entry.getPraatSoundPointer()));
+      if (!praatBlobQuery.exec()) {
+         //TODO: Cleanup
+          qDebug() << "Can't insert praat blob";
+          qDebug() << "Query was the following: " << getLastExecutedQuery(praatBlobQuery);
+          qDebug() << db.lastError().text();
+          this->clearForms();
+          return false;
+      }
+      praatblobid = praatBlobQuery.lastInsertId();
+      praatBlobQuery.clear();
+
+      QSqlQuery praatDescriptionQuery(db);
+      praatDescriptionQuery.prepare("INSERT INTO dict_blobs_description(type,name,description,wordid,blobid)"
+                                     "VALUES (2,:name,:description,:wordid,:blobid)");
+      praatDescriptionQuery.bindValue(":name", entry.getBasePraatMarkupFilename());
+      praatDescriptionQuery.bindValue(":description", entry.getPraatDescription());
+      praatDescriptionQuery.bindValue(":wordid", wordid);
+      praatDescriptionQuery.bindValue(":blobid", praatblobid);
+
+      if (!praatDescriptionQuery.exec()) {
+         //TODO: Cleanup
+          qDebug() << "Can't insert sound blob description";
+          qDebug() << "Query was the following: " << getLastExecutedQuery(praatDescriptionQuery);
+          qDebug() << db.lastError().text();
+          this->clearForms();
+          return false;
+      }
+      qDebug() << "Successfully submitted praat blob";
+  }
 
 //  dictModel->database().commit();
   qDebug() << "Executed the query on commit: " << dictModel->query().lastQuery();
   dictModel->select();
+
+
 
   this->clearForms();
   return true;
@@ -399,4 +448,13 @@ void TabContents::clearForms() {
   ui->wordForm->clear();
   ui->transcritptionForm->clear();
   ui->translationForm->clear();
+  ui->soundDescription->clear();
+  ui->praatDescription->clear();
+  this->praatChosen = false;
+  ui->praatButton->setText("Выберите файл разметки");
+  this->soundChosen = false;
+  ui->soundButton->setText("Выберите звуковой файл");
+  this->soundFilename.clear();
+  this->praatFilenameMarkup.clear();
+  this->praatFilenameSound.clear();
 }

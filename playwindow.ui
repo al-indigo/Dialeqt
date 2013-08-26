@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>134</height>
+    <height>213</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,11 +19,18 @@
      <property name="title">
       <string>Прогресс проигрывания</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QProgressBar" name="progressBar">
-        <property name="value">
-         <number>24</number>
+       <widget class="QSlider" name="progressBar">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelDuration">
+        <property name="text">
+         <string>0:00/0:00</string>
         </property>
        </widget>
       </item>
@@ -43,14 +50,14 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="playButton">
         <property name="text">
          <string>Играть</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton">
+       <widget class="QToolButton" name="pauseButton">
         <property name="text">
          <string>Пауза</string>
         </property>
@@ -72,6 +79,9 @@
       </item>
      </layout>
     </widget>
+   </item>
+   <item>
+    <widget class="QListView" name="playlist"/>
    </item>
   </layout>
  </widget>
