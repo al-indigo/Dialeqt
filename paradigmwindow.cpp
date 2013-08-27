@@ -1,11 +1,9 @@
 #include "paradigmwindow.h"
 #include "ui_paradigmwindow.h"
 
-ParadigmWindow::ParadigmWindow(QWidget *parent) :
-  QDialog(parent),
-  ui(new Ui::ParadigmWindow)
+ParadigmWindow::ParadigmWindow(DictGlobalAttributes _dictAttrs, TabContents *parent) :
+  TabContents(_dictAttrs, parent)
 {
-  ui->setupUi(this);
 }
 
 ParadigmWindow::~ParadigmWindow()

@@ -23,12 +23,15 @@ public:
     explicit DialogCreateNewDictionary(QWidget *parent = 0);
     ~DialogCreateNewDictionary();
     DictGlobalAttributes getData(void);
+public slots:
+
+    bool validateData(void);
+
 protected:
 
     
 private:
     Ui::DialogCreateNewDictionary *ui;
-    bool validateData(void);
 };
 
 #endif // DIALOGCREATENEWDICTIONARY_H

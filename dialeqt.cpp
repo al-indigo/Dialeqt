@@ -29,7 +29,7 @@ void Dialeqt::on_createDictMenuButton_triggered()
         dictAttrs.debugPrint();
         if (!ui->dictsTabsContainerWidget->createDictTabInitial(dictAttrs)) {
             qDebug() << "cannot create dictionary tab";
-          }
+        }
 
     }
 }

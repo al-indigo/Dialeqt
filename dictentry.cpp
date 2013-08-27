@@ -1,30 +1,9 @@
 #include "dictentry.h"
-
+#include "utils.h"
 #include <QFile>
 #include <QFileInfo>
 #include <QDebug>
 #include <QTime>
-
-void readAndCompress(const QString & filename, QByteArray &compressedResult) {
-  QFileInfo info(filename);
-  if (info.exists()) {
-      //read file and compress
-      QFile file(filename);
-
-      if (!file.open(QIODevice::ReadOnly)) {
-          qDebug() << "Can't read the file: " << filename;
-      } else {
-          qDebug() << "Filesize before compression: " << info.size();
-          QTime timer;
-
-          timer.start();
-          compressedResult = qCompress(file.readAll());
-          qDebug() << "Compression took " << timer.elapsed()/1000;
-          qDebug() << "Filesize after compression: " << compressedResult.size();
-          file.close();
-      }
-    }
-}
 
 DictEntry::DictEntry(QObject *parent,
                      QString _word,

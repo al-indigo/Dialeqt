@@ -17,6 +17,7 @@
 #include "taleswindow.h"
 #include "paradigmwindow.h"
 #include "playwindow.h"
+#include "utils.h"
 
 #include "ui_tabcontents.h"
 
@@ -27,7 +28,8 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
   db(QSqlDatabase::database(dictAttrs.getFilename())),
   ui(new Ui::TabContents),
   soundChosen(false),
-  praatChosen(false)
+  praatChosen(false),
+  praatRightChosen(false)
 {
   ui->setupUi(this);
 
@@ -52,8 +54,6 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
   soundsModel = new QSqlTableModel(this, db);
   praatModel = new QSqlTableModel(this, db);
 
-  initializePraatModel(praatModel);
-  initializeSoundsModel(soundsModel);
   initializeDictModel(dictModel);
 
   ui->dictionaryTable->setModel(dictModel);
@@ -68,14 +68,35 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
   ui->dictionaryTable->setColumnWidth(3, 200);
   ui->dictionaryTable->setColumnWidth(4, 350);
 
+  initializeSoundsModel(soundsModel);
+
   ui->soundsList->setModel(soundsModel);
-  ui->soundsList->setModelColumn(2);
+  ui->soundsList->setColumnHidden(0,true);
+  ui->soundsList->setColumnHidden(1,true);
+  ui->soundsList->setColumnHidden(4,true);
+  ui->soundsList->setColumnHidden(5,true);
+  ui->soundsList->verticalHeader()->setVisible(false);
+//  ui->soundsList->setModelColumn(2);
+//  ui->soundsList->setUpdatesEnabled(true);
+
+  initializePraatModel(praatModel);
 
   ui->praatList->setModel(praatModel);
-  ui->praatList->setModelColumn(2);
+  ui->praatList->setColumnHidden(0,true);
+  ui->praatList->setColumnHidden(1,true);
+  ui->praatList->setColumnHidden(4,true);
+  ui->praatList->setColumnHidden(5,true);
+  ui->praatList->verticalHeader()->setVisible(false);
+//  ui->praatList->setModelColumn(2);
 
   connect(ui->dictionaryTable , SIGNAL(clicked(QModelIndex)), this, SLOT(filterBlobs()));
+  connect(ui->dictionaryTable, SIGNAL(activated(QModelIndex)), this, SLOT(filterBlobs()));
 
+  connect(ui->choosePraat, SIGNAL(clicked()), this, SLOT(choosePraatRight()));
+  connect(ui->praatDescription_2, SIGNAL(textChanged(QString)), this, SLOT(checkPraatRightDescription()));
+  connect(ui->submitPraat, SIGNAL(clicked()), this, SLOT(submitRightPraat()));
+
+  ui->paradigmButton->setDisabled(true);
 }
 
 bool TabContents::chooseSound() {
@@ -93,6 +114,126 @@ bool TabContents::chooseSound() {
   }
   return true;
 }
+
+bool TabContents::choosePraatRight() {
+
+  QItemSelectionModel *select = ui->dictionaryTable->selectionModel();
+
+  if (!select->hasSelection()) {
+      errorMsg("Вы не выбрали слово, для которого хотите добавить разметку Praat");
+      return false;
+  }
+
+  if (!this->praatRightChosen) {
+      this->praatRightFormFilenameMarkup =  QDir::toNativeSeparators (QFileDialog::getOpenFileName(this,
+                                                                                          tr("Выберите файл разметки Praat для вставки в словарь"),
+                                                                                          "",
+                                                                                          tr("Файлы разметки Praat (*.TextGrid)")));
+      QFileInfo fileInfo(this->praatRightFormFilenameMarkup);
+      this->praatRightFormFilenameSound = QDir::toNativeSeparators (fileInfo.canonicalPath().append(fileInfo.completeBaseName().append(".wav").prepend("/")));
+      qDebug() << "Praat right markup is selected: " << this->praatRightFormFilenameMarkup;
+      qDebug() << "Praat right sound is selected: " << this->praatRightFormFilenameSound;
+      if (!this->praatRightFormFilenameMarkup.isEmpty()) {
+        ui->choosePraat->setText("Сбросить выбор?");
+        this->praatRightChosen = true;
+      }
+
+  } else {
+      this->praatRightFormFilenameMarkup.clear();
+      this->praatRightFormFilenameSound.clear();
+      ui->choosePraat->setText("Выберите файл разметки");
+      this->praatRightChosen = false;
+  }
+  return true;
+}
+
+bool TabContents::checkPraatRightDescription() {
+  QItemSelectionModel *select = ui->dictionaryTable->selectionModel();
+
+  if (!select->hasSelection()) {
+      errorMsg("Вы не выбрали слово, для которого хотите добавить разметку Praat");
+      return false;
+  }
+
+  if (ui->praatDescription_2->text().isEmpty()) {
+      return false;
+    } else if (!this->praatRightChosen) {
+      return false;
+    } else {
+      return true;
+    }
+}
+
+bool TabContents::submitRightPraat() {
+  QItemSelectionModel *select = ui->dictionaryTable->selectionModel();
+
+  if (!select->hasSelection()) {
+      errorMsg("Вы не выбрали слово, для которого хотите добавить разметку Praat");
+      return false;
+  }
+
+  QModelIndex index = ui->dictionaryTable->currentIndex();
+  QVariant wordid = index.sibling(index.row(),0).data();
+  qDebug() << wordid;
+
+  if (!this->praatRightChosen) {
+      errorMsg("Вы не выбрали файл разметки");
+      return false;
+    }
+
+  if (ui->praatDescription_2->text().isEmpty()) {
+      errorMsg("Вы не заполнили описание для разметки, без этого нельзя её добавить");
+      return false;
+    }
+
+  QByteArray praatMarkup;
+  QByteArray praatSound;
+  readAndCompress(this->praatRightFormFilenameMarkup, praatMarkup);
+  readAndCompress(this->praatRightFormFilenameSound, praatSound);
+
+  QFileInfo fileinfo = QFileInfo(this->praatRightFormFilenameSound);
+  qDebug() << praatSound.size();
+
+  QVariant praatblobid;
+
+  // here we need to push sound to blobs table, get id of blob and make a record in blobs_description_table
+  QSqlQuery praatBlobQuery(db);
+  praatBlobQuery.prepare("INSERT INTO blobs(mainblob,secblob) values (:praatmarkupblob, :praatsoundblob)");
+  praatBlobQuery.bindValue(":praatmarkupblob", praatMarkup);
+  praatBlobQuery.bindValue(":praatsoundblob", praatSound);
+
+  if (!praatBlobQuery.exec()) {
+      qDebug() << "Can't insert praat blob";
+      qDebug() << "Query was the following: " << getLastExecutedQuery(praatBlobQuery);
+      qDebug() << db.lastError().text();
+      this->clearForms();
+      return false;
+  }
+  praatblobid = praatBlobQuery.lastInsertId();
+  praatBlobQuery.clear();
+
+  QSqlQuery praatDescriptionQuery(db);
+  praatDescriptionQuery.prepare("INSERT INTO dict_blobs_description(type,name,description,wordid,blobid)"
+                                 "VALUES (2,:name,:description,:wordid,:blobid)");
+  praatDescriptionQuery.bindValue(":name", fileinfo.completeBaseName());
+  praatDescriptionQuery.bindValue(":description", ui->praatDescription_2->text());
+  praatDescriptionQuery.bindValue(":wordid", wordid);
+  praatDescriptionQuery.bindValue(":blobid", praatblobid);
+
+  if (!praatDescriptionQuery.exec()) {
+      qDebug() << "Can't insert praat blob description";
+      qDebug() << "Query was the following: " << getLastExecutedQuery(praatDescriptionQuery);
+      qDebug() << db.lastError().text();
+      this->clearForms();
+      return false;
+  }
+  qDebug() << "Successfully submitted praat";
+
+  this->clearForms();
+  this->praatModel->select();
+  return true;
+}
+
 
 bool TabContents::choosePraat() {
   if (!this->praatChosen) {
@@ -130,15 +271,46 @@ bool TabContents::showEtimology() {
 }
 
 bool TabContents::showParadigm() {
-  ParadigmWindow paradigm(this);
-  paradigm.exec();
+  ParadigmWindow paradigm(dictAttrs, this);
+//  paradigm.exec();
+
   return true;
 }
 
 bool TabContents::showPlay() {
   QStringList playlist;
-  playlist.append("C:/Users/al/QTProjects/01. Air - Playground Love.mp3");
-  PlayWindow play(playlist,this);
+  QItemSelectionModel *select = ui->dictionaryTable->selectionModel();
+
+  if (!select->hasSelection()) {
+      errorMsg("Вы не выбрали слово, для которого хотите послушать/добавить аудиофайлы");
+      return false;
+  }
+  QModelIndex index = ui->dictionaryTable->currentIndex();
+  QVariant wordid = index.sibling(index.row(),0).data();
+  qDebug() << wordid;
+
+  QSqlQuery query_descriptions(db);
+  query_descriptions.prepare("SELECT blobid, name FROM dict_blobs_description WHERE dict_blobs_description.wordid = :wordid and dict_blobs_description.type = 1");
+  query_descriptions.bindValue(":wordid", wordid);
+  query_descriptions.exec();
+  QString dest_dir = createDirectory(dictAttrs.getDictname(), "audio");
+
+  while (query_descriptions.next()) {
+      QSqlQuery query_blobs(db);
+      query_blobs.prepare("SELECT mainblob FROM blobs WHERE blobs.id = :blobid");
+      query_blobs.bindValue(":blobid",query_descriptions.value("blobid"));
+      qDebug() << getLastExecutedQuery(query_blobs);
+      query_blobs.exec();
+      while (query_blobs.next()) {
+          if (!extractSound(dest_dir, query_descriptions.value("name").toString(), query_blobs.value("mainblob").toByteArray())) {
+              qDebug() << "Can't decompress sound blobs";
+          } else {
+              playlist.append(dest_dir + "/" + query_descriptions.value("name").toString());
+          }
+        }
+    }
+
+  PlayWindow play(playlist, db, dest_dir, wordid, this);
   play.exec();
   return true;
 }
@@ -174,9 +346,6 @@ void TabContents::initializeDictModel(QSqlTableModel *model) {
   model->setHeaderData(3, Qt::Horizontal, QObject::tr("Транскрипция"));
   model->setHeaderData(4, Qt::Horizontal, QObject::tr("Перевод"));
 
-//  model->setRelation(0, QSqlRelation("dict_blobs_description", "name", "wordid"));
-//  model->setFilter("relTblAl_0.'wordid' = dictionary.'id'");
-//  model->setRelation(6, QSqlRelation("dict_blobs_description", "wordid", "description"));
   qDebug() << model->query().lastQuery();
   model->select();
   qDebug() << model->query().lastQuery();
@@ -185,7 +354,7 @@ void TabContents::initializeDictModel(QSqlTableModel *model) {
 
 bool TabContents::filterBlobs() {
   qDebug() << "filtering blobs";
-  QString filterSoundsQuery = "dict_blobs_description.type = 1 and dict_blobs_description.wordid = ";
+  QString filterSoundsQuery = "type = 1 and wordid = ";
   QString filterPraatQuery = "dict_blobs_description.type = 2 and dict_blobs_description.wordid = ";
 
   QModelIndexList model_index = ui->dictionaryTable->selectionModel()->selection().indexes();
@@ -197,10 +366,17 @@ bool TabContents::filterBlobs() {
   const QString filterpraat(filterPraatQuery);
   soundsModel->setFilter(filtersounds);
   praatModel->setFilter(filterpraat);
+
+  soundsModel->select();
+  praatModel->select();
+
   qDebug() << soundsModel->query().lastQuery();
   qDebug() << praatModel->query().lastQuery();
+  qDebug() << soundsModel->query().record().count();
+  qDebug() << soundsModel->rowCount();
   qDebug() << soundsModel->query().result();
   qDebug() << praatModel->query().result();
+  qDebug() << praatModel->query().record().count();
 
   return true;
 }
@@ -216,9 +392,13 @@ void TabContents::initializeSoundsModel(QSqlTableModel *model) {
   model->setHeaderData(4, Qt::Horizontal, QObject::tr("Ссылка на слово"));
   model->setHeaderData(5, Qt::Horizontal, QObject::tr("Ссылка на блоб"));
 
-  model->setFilter("dict_blobs_description.type = 1");
-
+  model->setFilter("type = 1");
   model->select();
+  qDebug() << "initializing soundsmodel";
+  qDebug() << model->query().lastQuery();
+  qDebug() << model->query().result();
+  qDebug() << model->query().record().count();
+  qDebug() << model->rowCount();
 }
 
 void TabContents::initializePraatModel(QSqlTableModel *model) {
@@ -232,21 +412,14 @@ void TabContents::initializePraatModel(QSqlTableModel *model) {
   model->setHeaderData(4, Qt::Horizontal, QObject::tr("Ссылка на слово"));
   model->setHeaderData(5, Qt::Horizontal, QObject::tr("Ссылка на блоб"));
 
-  model->setFilter("dict_blobs_description.type = 2");
+  model->setFilter("type = 2");
 
   model->select();
 
 }
 
 
-void errorMsg (const QString& error_msg){
-  QMessageBox errormsg;
-  errormsg.setText(error_msg);
-  errormsg.setIcon(QMessageBox::Critical);
-  errormsg.setDefaultButton(QMessageBox::Ok);
-  errormsg.exec();
-  return;
-}
+
 
 bool TabContents::isValidInput(void) {
   // 1 -- text inputs are blank
@@ -457,4 +630,10 @@ void TabContents::clearForms() {
   this->soundFilename.clear();
   this->praatFilenameMarkup.clear();
   this->praatFilenameSound.clear();
+  this->praatRightFormFilenameMarkup.clear();
+  this->praatRightFormFilenameSound.clear();
+  this->praatRightFormDescription.clear();
+  this->praatRightChosen = false;
+  ui->choosePraat->setText("Выберите файл разметки");
+  ui->praatDescription_2->clear();
 }

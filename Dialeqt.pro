@@ -4,7 +4,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Dialeqt
 TEMPLATE = app
-
+CONFIG += static
 
 SOURCES += main.cpp\
         dialeqt.cpp \
@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     etimologywindow.cpp \
     playwindow.cpp \
     editablesqlmodel.cpp \
-    playlistmodel.cpp
+    playlistmodel.cpp \
+    utils.cpp
 
 HEADERS  += dialeqt.h \
     dialogcreatenewdictionary.h \
@@ -40,7 +41,8 @@ HEADERS  += dialeqt.h \
     etimologywindow.h \
     playwindow.h \
     editablesqlmodel.h \
-    playlistmodel.h
+    playlistmodel.h \
+    utils.h
 
 FORMS    += dialeqt.ui \
     dialogcreatenewdictionary.ui \

@@ -3,16 +3,17 @@
 
 #include <QWidget>
 #include <QDialog>
+#include "tabcontents.h"
 namespace Ui {
   class ParadigmWindow;
 }
 
-class ParadigmWindow : public QDialog
+class ParadigmWindow : public TabContents
 {
   Q_OBJECT
   
 public:
-  explicit ParadigmWindow(QWidget *parent = 0);
+  explicit ParadigmWindow(DictGlobalAttributes _dictAttrs, TabContents *parent=0);
   ~ParadigmWindow();
   
 private:

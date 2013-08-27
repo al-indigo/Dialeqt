@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>213</height>
+    <height>378</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -64,24 +64,60 @@
        </widget>
       </item>
       <item>
-       <widget class="QSlider" name="horizontalSlider">
+       <widget class="QSlider" name="volumeSlider">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QSlider" name="horizontalSlider_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
+       <widget class="QComboBox" name="rateBox"/>
       </item>
      </layout>
     </widget>
    </item>
    <item>
     <widget class="QListView" name="playlist"/>
+   </item>
+   <item>
+    <widget class="QToolButton" name="deleteSound">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Удалить выбранную запись из словаря</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>Добавить к слову звуковой файл и описание</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QToolButton" name="selectFile">
+        <property name="text">
+         <string>Выберите звуковой файл</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="soundDescription"/>
+      </item>
+      <item>
+       <widget class="QToolButton" name="submit">
+        <property name="text">
+         <string>Добавить
+в словарь</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
   </layout>
  </widget>

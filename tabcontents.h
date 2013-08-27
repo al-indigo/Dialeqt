@@ -15,6 +15,7 @@ namespace Ui {
 
 class TabContents : public QWidget
 {
+protected:
   Q_OBJECT
   DictGlobalAttributes dictAttrs;
   QSqlDatabase db;
@@ -24,11 +25,15 @@ class TabContents : public QWidget
 
   bool soundChosen;
   bool praatChosen;
+  bool praatRightChosen;
 
   QString soundFilename;
   QString praatFilenameMarkup;
   QString praatFilenameSound;
 
+  QString praatRightFormFilenameMarkup;
+  QString praatRightFormFilenameSound;
+  QString praatRightFormDescription;
 public:
   explicit TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent = 0);
   ~TabContents();
@@ -46,7 +51,11 @@ public slots:
   bool filterBlobs();
   bool chooseSound();
   bool choosePraat();
-private:
+  bool choosePraatRight();
+  bool checkPraatRightDescription();
+  bool submitRightPraat();
+
+protected:
   Ui::TabContents *ui;
   DictEntry readFields();
   void clearForms(void);

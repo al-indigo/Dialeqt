@@ -14,20 +14,8 @@ DictDbFactory::DictDbFactory(QObject *parent) :
 }
 
 QSqlDatabase DictDbFactory::createConnection(const QString &connectionName) {
-    QDir dictsDir = QDir("dictionaries");
-    if (!dictsDir.exists()) {
-        qDebug() << "Dictionaries directory doesn't exist";
-        if (!dictsDir.mkdir("dictionaries")) {
-            qDebug() << "Can't create directory for dicts; maybe insufficient privileges";
-            //TODO: decide if I want to make exceptions.
-            return QSqlDatabase::QSqlDatabase(); //now I'm returning invalid database connection object
-        } else {
-            qDebug() << "Created dictionaries directory";
-        }
-    } else {
-        qDebug() << "Dictionaries directory exists";
-    }
-
+    QDir dictsDir = QDir();
+    dictsDir.mkpath("dictionaries");
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", connectionName);
     db.setDatabaseName(connectionName);
     if (!db.open()) {
