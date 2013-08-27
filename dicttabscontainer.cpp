@@ -14,8 +14,13 @@ DictTabsContainer::DictTabsContainer(QWidget *parent) :
   this->setMinimumSize(300,400);
   this->setMaximumSize(10000,10000);
   this->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-
+//  this->connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(remove(int)));
   qDebug() << "tabs container instantiated";
+}
+
+bool DictTabsContainer::remove(int tab) {
+  this->removeTab(tab);
+  return true;
 }
 
 bool DictTabsContainer::createDictTabInitial(DictGlobalAttributes dictAttrs)

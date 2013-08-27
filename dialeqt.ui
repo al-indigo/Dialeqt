@@ -64,16 +64,13 @@
     <addaction name="createDictMenuButton"/>
     <addaction name="separator"/>
     <addaction name="openDictMenuButton"/>
-    <addaction name="action_2"/>
     <addaction name="separator"/>
-    <addaction name="action_4"/>
-    <addaction name="action_5"/>
-    <addaction name="action_6"/>
-    <addaction name="separator"/>
-    <addaction name="action_8"/>
     <addaction name="action_9"/>
    </widget>
    <widget class="QMenu" name="menu_2">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="title">
      <string>Правка</string>
     </property>
@@ -85,6 +82,9 @@
     <addaction name="action_15"/>
    </widget>
    <widget class="QMenu" name="menu_3">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="title">
      <string>Вид</string>
     </property>
@@ -98,6 +98,9 @@
     <addaction name="action_23"/>
    </widget>
    <widget class="QMenu" name="menu_4">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="title">
      <string>Поиск</string>
     </property>
@@ -143,6 +146,9 @@
    </property>
   </action>
   <action name="action_10">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Отменить последнее действие</string>
    </property>
@@ -170,6 +176,9 @@
   <action name="action_16">
    <property name="checkable">
     <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Показать виртуальную клавиатуру МФА</string>

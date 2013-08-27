@@ -594,7 +594,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="toolButton_3">
+             <widget class="QToolButton" name="deleteButton">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>

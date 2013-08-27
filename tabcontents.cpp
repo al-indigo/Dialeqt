@@ -62,7 +62,7 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
   ui->dictionaryTable->setColumnHidden(5,true);
   ui->dictionaryTable->setColumnHidden(6,true);
   ui->dictionaryTable->setColumnHidden(7,true);
-  ui->dictionaryTable->setColumnHidden(8,true);
+//  ui->dictionaryTable->setColumnHidden(8,true);
   ui->dictionaryTable->setSortingEnabled(true);
   ui->dictionaryTable->setColumnWidth(1, 100 );
   ui->dictionaryTable->setColumnWidth(3, 200);
@@ -97,6 +97,11 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
   connect(ui->submitPraat, SIGNAL(clicked()), this, SLOT(submitRightPraat()));
 
   ui->paradigmButton->setDisabled(true);
+  ui->sendToPraat->setDisabled(true);
+  ui->phonologyButton->setDisabled(true);
+  ui->legendButton->setDisabled(true);
+  ui->talesButton->setDisabled(true);
+  ui->deleteButton->setDisabled(true);
 }
 
 bool TabContents::chooseSound() {
@@ -417,7 +422,6 @@ void TabContents::initializePraatModel(QSqlTableModel *model) {
   model->select();
 
 }
-
 
 
 

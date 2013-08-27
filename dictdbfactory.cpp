@@ -82,10 +82,26 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
               "is_a_regular_form  BOOL, "
               "has_paradigm       BOOL, "
               "etimology_tag      TEXT,  "
-              "etimology dict     INTEGER "
+              "etimology_dict     INTEGER "
           ");"
           )) {
         qDebug() << "Failed to create dictionary table";
+        qDebug() << db.lastError().text();
+        return false;
+    } else {
+        qDebug() << "dictionary table created ok";
+    }
+
+    if(!query.exec(
+         "CREATE TABLE etimology ("
+             "id                 INTEGER PRIMARY KEY "
+                                        "NOT NULL "
+                                        "UNIQUE, "
+             "wordid             INTEGER NOT NULL,"
+             "dictid             INTEGER NOT NULL"
+         ");"
+         )) {
+        qDebug() << "Failed to create etimology connector table";
         qDebug() << db.lastError().text();
         return false;
     } else {

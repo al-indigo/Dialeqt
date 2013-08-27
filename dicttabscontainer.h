@@ -22,7 +22,7 @@ public:
 signals:
   
 public slots:
-  
+  bool remove(int tab);
 };
 
 #endif // DICTTABSCONTAINER_H

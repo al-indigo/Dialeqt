@@ -62,7 +62,7 @@ protected:
   void initializeDictModel(QSqlTableModel *model);
   void initializeSoundsModel(QSqlTableModel *model);
   void initializePraatModel(QSqlTableModel *model);
-  bool TabContents::isValidInput(void);
+  bool isValidInput(void);
 
 };
 
