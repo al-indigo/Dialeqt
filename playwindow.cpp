@@ -121,7 +121,7 @@ void PlayWindow::addSoundToDatabase()
   QSqlQuery soundDescriptionQuery(db);
   soundDescriptionQuery.prepare("INSERT INTO dict_blobs_description(type,name,description,wordid,blobid)"
                                  "VALUES (1,:name,:description,:wordid,:blobid)");
-  soundDescriptionQuery.bindValue(":name", fileinfo.completeBaseName());
+  soundDescriptionQuery.bindValue(":name", fileinfo.fileName());
   soundDescriptionQuery.bindValue(":description", ui->soundDescription->text());
   soundDescriptionQuery.bindValue(":wordid", wordid);
   soundDescriptionQuery.bindValue(":blobid", soundblobid);

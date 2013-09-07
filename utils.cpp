@@ -20,7 +20,8 @@ void readAndCompress(const QString & filename, QByteArray &compressedResult) {
           QTime timer;
 
           timer.start();
-          compressedResult = qCompress(file.readAll());
+//          compressedResult = qCompress(file.readAll());
+          compressedResult = file.readAll();
           qDebug() << "Compression took " << timer.elapsed()/1000;
           qDebug() << "Filesize after compression: " << compressedResult.size();
           file.close();
@@ -46,7 +47,8 @@ bool extractSound(const QString& dest, const QString& name, const QByteArray& co
       qDebug() << "Can't write sound file to disk";
       return false;
   } else {
-      if (!file.write(qUncompress(compressed))) {
+//      if (!file.write(qUncompress(compressed))) {
+      if (!file.write(compressed)) {
           qDebug() << "Can't write to sound file anymore";
           file.close();
           return false;

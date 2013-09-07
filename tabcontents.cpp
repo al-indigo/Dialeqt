@@ -62,7 +62,7 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
   ui->dictionaryTable->setColumnHidden(5,true);
   ui->dictionaryTable->setColumnHidden(6,true);
   ui->dictionaryTable->setColumnHidden(7,true);
-//  ui->dictionaryTable->setColumnHidden(8,true);
+  ui->dictionaryTable->setColumnHidden(8,true);
   ui->dictionaryTable->setSortingEnabled(true);
   ui->dictionaryTable->setColumnWidth(1, 100 );
   ui->dictionaryTable->setColumnWidth(3, 200);
@@ -247,10 +247,11 @@ bool TabContents::choosePraat() {
                                                                                           "",
                                                                                           tr("Файлы разметки Praat (*.TextGrid)")));
       QFileInfo fileInfo(this->praatFilenameMarkup);
-      this->praatFilenameSound = QDir::toNativeSeparators (fileInfo.canonicalPath().append(fileInfo.completeBaseName().append(".wav").prepend("/")));
-      qDebug() << "Praat markup is selected: " << this->praatFilenameMarkup;
-      qDebug() << "Praat sound is selected: " << this->praatFilenameSound;
       if (!this->praatFilenameMarkup.isEmpty()) {
+        this->praatFilenameSound = QDir::toNativeSeparators (fileInfo.canonicalPath().append(fileInfo.completeBaseName().append(".wav").prepend("/")));
+        qDebug() << "Praat markup is selected: " << this->praatFilenameMarkup;
+        qDebug() << "Praat sound is selected: " << this->praatFilenameSound;
+
         ui->praatButton->setText("Сбросить выбор?");
         this->praatChosen = true;
       }
@@ -465,7 +466,7 @@ bool TabContents::isValidInput(void) {
   }
   // 8 -- praat sound doesn't exist
   if (!(this->praatFilenameSound.isEmpty()) && !QFile(this->praatFilenameSound).exists()) {
-      errorMsg("Похоже, что вы выбрали файл звука, но парного файла разметки к нему не существует. Проверьте, что они называются одинаково (за исключением расширений .wav и .praat) и что оба файла лежат в одной и той же папке");
+      errorMsg("Похоже, вы выбрали файл звука, но парного файла разметки к нему не существует. Проверьте, что они называются одинаково (за исключением расширений .wav и .praat) и что оба файла лежат в одной и той же папке");
       return false;
   }
 
