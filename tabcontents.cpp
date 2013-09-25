@@ -96,7 +96,7 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
   connect(ui->praatDescription_2, SIGNAL(textChanged(QString)), this, SLOT(checkPraatRightDescription()));
   connect(ui->submitPraat, SIGNAL(clicked()), this, SLOT(submitRightPraat()));
 
-  ui->paradigmButton->setDisabled(true);
+//  ui->paradigmButton->setDisabled(true);
   ui->sendToPraat->setDisabled(true);
   ui->phonologyButton->setDisabled(true);
   ui->legendButton->setDisabled(true);
@@ -277,8 +277,24 @@ bool TabContents::showEtimology() {
 }
 
 bool TabContents::showParadigm() {
-  ParadigmWindow paradigm(dictAttrs, this);
-//  paradigm.exec();
+  QItemSelectionModel *select = ui->dictionaryTable->selectionModel();
+
+  if (!select->hasSelection()) {
+      errorMsg("Вы не выбрали слово, для которого хотите послушать/добавить аудиофайлы");
+      return false;
+  }
+  QModelIndex index = ui->dictionaryTable->currentIndex();
+  QVariant wordid = index.sibling(index.row(),0).data();
+  qDebug() << wordid;
+  QVariant word = index.sibling(index.row(),1).data();
+  qDebug() << word;
+  QVariant transcription = index.sibling(index.row(),2).data();
+  qDebug() << transcription;
+  QVariant translation = index.sibling(index.row(),3).data();
+  qDebug() << translation;
+
+  ParadigmWindow paradigm(dictAttrs, wordid, word, transcription, translation, this);
+  paradigm.exec();
 
   return true;
 }
@@ -351,6 +367,7 @@ void TabContents::initializeDictModel(QSqlTableModel *model) {
   model->setHeaderData(2, Qt::Horizontal, QObject::tr("Регулярная форма"));
   model->setHeaderData(3, Qt::Horizontal, QObject::tr("Транскрипция"));
   model->setHeaderData(4, Qt::Horizontal, QObject::tr("Перевод"));
+  model->setFilter(QString("is_a_regular_form = 1"));
 
   qDebug() << model->query().lastQuery();
   model->select();
