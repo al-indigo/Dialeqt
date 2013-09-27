@@ -99,8 +99,8 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
 //  ui->paradigmButton->setDisabled(true);
   ui->sendToPraat->setDisabled(true);
   ui->phonologyButton->setDisabled(true);
-  ui->legendButton->setDisabled(true);
-  ui->talesButton->setDisabled(true);
+//  ui->legendButton->setDisabled(true);
+//  ui->talesButton->setDisabled(true);
   ui->deleteButton->setDisabled(true);
 }
 
@@ -280,7 +280,7 @@ bool TabContents::showParadigm() {
   QItemSelectionModel *select = ui->dictionaryTable->selectionModel();
 
   if (!select->hasSelection()) {
-      errorMsg("Вы не выбрали слово, для которого хотите послушать/добавить аудиофайлы");
+      errorMsg("Вы не выбрали слово, для которого необходимо отобразить парадигму");
       return false;
   }
   QModelIndex index = ui->dictionaryTable->currentIndex();
