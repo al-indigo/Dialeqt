@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QSet>
+#include <QStringList>
 
 class DictGlobalAttributes : public QObject
 {
@@ -14,7 +15,6 @@ class DictGlobalAttributes : public QObject
     QSet <QString> coauthors;
     QSet <QString> tags;
     QString description;
-    QString legend;
 public:
     explicit DictGlobalAttributes(QObject *parent = 0);
              DictGlobalAttributes(QString _dbId,
@@ -30,8 +30,7 @@ public:
                                                             author(_author),
                                                             coauthors(_coauthors),
                                                             tags(_tags),
-                                                            description(_description),
-                                                            legend("NO_LEGEND") {}
+                                                            description(_description) {}
              DictGlobalAttributes(const DictGlobalAttributes &dictCopy) :
                dbId(dictCopy.dbId),
                filename(dictCopy.filename),
@@ -71,7 +70,10 @@ public:
              QSet <QString> getCoauthors(void) const { return coauthors; }
              QSet <QString> getTags(void) const { return tags; }
              QString getDescription(void) const { return description; }
-             QString getLegend(void) const { return legend; }
+
+             void setCoauthors(QStringList _coAuthors);
+             void setTags (QStringList _tags);
+             void setDescription (QString _descr) { description = _descr; }
 
 signals:
     

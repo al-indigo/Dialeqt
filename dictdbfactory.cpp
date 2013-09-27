@@ -57,8 +57,7 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
               "dict_coauthors           TEXT, "
               "dict_classification_tags TEXT, "
               "dict_description         TEXT, "
-              "dict_legend              TEXT, "
-              "dialeqt_version          INTEGER DEFAULT ( 1 ) "
+              "dialeqt_version          INTEGER DEFAULT ( 2 ) "
           ");"
           )) {
         qDebug() << "Failed to create dict_attributes table";
@@ -80,9 +79,7 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
               "transcription      TEXT, "
               "translation        TEXT, "
               "is_a_regular_form  BOOL, "
-              "has_paradigm       BOOL, "
-              "etimology_tag      TEXT,  "
-              "etimology_dict     INTEGER "
+              "etimology_tag      TEXT "
           ");"
           )) {
         qDebug() << "Failed to create dictionary table";
@@ -123,11 +120,44 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
 
     /* table phonology */
 
-    /* table fairy_tails */
+    /* table fairy_tales */
+    /* Now this table stores the legend too. Legend is always #0 */
+    if (!query.exec(
+          "CREATE TABLE fairy_tales ( "
+              "id          INTEGER PRIMARY KEY "
+                                  "NOT NULL "
+                                  "UNIQUE, "
+              "tale_name        TEXT"
+              "tale             TEXT"
+          ");"
+          )) {
+        qDebug() << "Failed to create tales table";
+        qDebug() << db.lastError().text();
+        return false;
+    } else {
+        qDebug() << "Tales table created ok";
+    }
 
+    /* table fairy_tales_blobs */
+    /* These blobs are NOT global; they store only fairy tales and legend blobs*/
+    if (!query.exec(
+          "CREATE TABLE tales_blobs ( "
+              "id          INTEGER PRIMARY KEY "
+                                  "NOT NULL "
+                                  "UNIQUE, "
+              "filename    TEXT,"
+              "blob    BLOB NOT NULL"
+          ");"
+          )) {
+        qDebug() << "Failed to create blobs table";
+        qDebug() << db.lastError().text();
+        return false;
+    } else {
+        qDebug() << "Blobs table created ok";
+    }
 
     /* table blobs */
-    /* These blobs are global; they store both dict blobs and globals */
+    /* These blobs are NOT global; they store only dict blobs*/
     if (!query.exec(
           "CREATE TABLE blobs ( "
               "id          INTEGER PRIMARY KEY "
@@ -178,26 +208,23 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
                     "dict_author, "
                     "dict_coauthors, "
                     "dict_classification_tags, "
-                    "dict_description, "
-                    "dict_legend) "
+                    "dict_description) "
                   "values ( "
                     ":dictId, "
                     ":dictName, "
                     ":dictAuthor, "
-                    ":dictCoathors, "
+                    ":dictCoauthors, "
                     ":dictTags, "
-                    ":dictDescription, "
-                    ":dictLegend);"
+                    ":dictDescription);"
                   );
     query.bindValue(":dictId", attrs.getDbId());
     query.bindValue(":dictName", attrs.getDictname());
     query.bindValue(":dictAuthor", attrs.getAuthor());
     //TODO: make set serialization/deserialization
-    query.bindValue(":dictCoathors", *attrs.getCoauthors().begin());
+    query.bindValue(":dictCoauthors", *attrs.getCoauthors().begin());
     query.bindValue(":dictTags", *attrs.getTags().begin());
 
     query.bindValue(":dictDescription", attrs.getDescription());
-    query.bindValue(":dictLegend", attrs.getLegend());
     qDebug() << "Going to execute the following query: " << query.lastQuery();
 
     if (!query.exec()) {

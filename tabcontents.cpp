@@ -265,8 +265,13 @@ bool TabContents::choosePraat() {
 }
 
 bool TabContents::showLegend() {
-  LegendWindow legend(this);
-  legend.exec();
+  LegendWindow legend(&dictAttrs, this);
+  if ( legend.exec() == QDialog::Accepted ) {
+       qDebug() << "accepted";
+       legend.setNewDictData();
+       dictAttrs.debugPrint();
+//     update db entry here
+    }
   return true;
 }
 
@@ -543,7 +548,6 @@ bool TabContents::submitWord()
   record.setValue("transcription" , entry.getTranscription());
   record.setValue("translation", entry.getTranslation());
   record.setValue("is_a_regular_form" , true);
-  record.setValue("has_paradigm", false);
   dictModel->insertRecord(-1, record);
 
   dictModel->submitAll();

@@ -495,7 +495,6 @@ bool ParadigmWindow::submitWord()
   record.setValue("transcription" , entry.getTranscription());
   record.setValue("translation", entry.getTranslation());
   record.setValue("is_a_regular_form" , false);
-  record.setValue("has_paradigm", false);
   dictModel->insertRecord(-1, record);
 
   dictModel->submitAll();
