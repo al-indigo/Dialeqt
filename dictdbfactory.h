@@ -21,7 +21,7 @@ public:
 
     
      QSqlDatabase createConnection(const QString &connectionName); //this func creates connection to db
-     bool initDb(const DictGlobalAttributes &attrs, const QSqlDatabase &db);
+     bool initDb(DictGlobalAttributes &attrs, const QSqlDatabase &db);
 
 signals:
     

@@ -28,6 +28,18 @@ void DictGlobalAttributes::setCoauthors(QStringList _coAuthors)
   }
 }
 
+QString DictGlobalAttributes::getCoauthorsQString() {
+  QString coAuthors;
+  foreach (const QString &item, this->getCoauthors()) {
+      coAuthors.append(item + QString(","));
+  }
+
+/* WARNING! It's a workaround: my QT build doesn't support native placeholders (WTF!) so the following lines should be deleted when I fix it
+  coAuthors.prepend("\"");
+  coAuthors.append("\"");*/
+  return coAuthors;
+}
+
 void DictGlobalAttributes::setTags(QStringList _tags)
 {
   this->tags.clear();
@@ -38,16 +50,13 @@ void DictGlobalAttributes::setTags(QStringList _tags)
   }
 }
 
-/*
-DictGlobalAttributes& DictGlobalAttributes::operator=(const DictGlobalAttributes& dictCopy)
-{
-              dbId = dictCopy.dbId;
-              filename = dictCopy.filename;
-              dictname(dictCopy.dictname);
-              author(dictCopy.author);
-              coauthors(dictCopy.coauthors);
-              tags(dictCopy.tags);
-              description(dictCopy.description);
-              return *this;
+QString DictGlobalAttributes::getTagsQString() {
+  QString tagsstring;
+  foreach (const QString &item, this->getTags()) {
+      tagsstring.append(item + QString(","));
+  }
+  /* WARNING! It's a workaround: my QT build doesn't support native placeholders (WTF!) so the following lines should be deleted when I fix it
+  tagsstring.prepend("\"");
+  tagsstring.append("\"");*/
+  return tagsstring;
 }
-*/

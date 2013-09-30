@@ -67,18 +67,18 @@ bool DictTabsContainer::openDictTabInitial(DictGlobalAttributes & dictAttrs, con
                   qDebug() << query.value("dict_coauthors").toString();
                   qDebug() << query.value("dict_classification_tags").toString();
                   qDebug() << query.value("dict_description").toString();
-                  qDebug() << query.value("dict_legend").toString();
                   qDebug() << query.value("dialeqt_version").toString();
 
                   QString dictname = query.value("dict_name").toString();
                   QString author = query.value("dict_author").toString();
-                  QStringList credits_list = query.value("dict_classification_tags").toString().split(",");
+                  QStringList credits_list = query.value("dict_coauthors").toString().split(",");
                   QSet<QString> credits;
                   foreach (const QString &item, credits_list) {
                       if(0 != item.capacity()) {
                         credits.insert(item.simplified());
                       }
                     }
+                  qDebug() << "Original credits " << credits_list << "; Credits list " << credits;
                   QStringList tags_list = query.value("dict_classification_tags").toString().split(",");
                   QSet<QString> tags;
                   foreach (const QString &item, tags_list) {
@@ -86,12 +86,17 @@ bool DictTabsContainer::openDictTabInitial(DictGlobalAttributes & dictAttrs, con
                         tags.insert(item.simplified());
                       }
                     }
+                  qDebug() << "Tags list " << tags;
                   QString description = query.value("dict_description").toString();
                   QString dbId = query.value("dict_identificator").toString();;
 
-                  DictGlobalAttributes tmpDictAttrs(dbId,filename,dictname,author,credits,tags,description);
+                  DictGlobalAttributes tmpDictAttrs(dbId, filename, dictname, author, credits, tags, description);
+                  qDebug() << "Constructed TEMP dictAttrs";
+                  tmpDictAttrs.debugPrint();
 
                   dictAttrs = tmpDictAttrs;
+                  qDebug() << "Opened a dictionary and constructed the following attributes";
+                  dictAttrs.debugPrint();
                   this->addTab(new TabContents(dictAttrs, this), dictAttrs.getDictname());
                 }
             } else {

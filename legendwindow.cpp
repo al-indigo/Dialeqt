@@ -2,6 +2,7 @@
 #include "ui_legendwindow.h"
 
 #include "utils.h"
+#include <QDebug>
 
 LegendWindow::LegendWindow(DictGlobalAttributes *_attrs, QWidget *parent) :
   attrs(_attrs),
@@ -9,6 +10,8 @@ LegendWindow::LegendWindow(DictGlobalAttributes *_attrs, QWidget *parent) :
   ui(new Ui::legendWindow)
 {
   ui->setupUi(this);
+  qDebug() << "Opened attrs window, setting the following params";
+  attrs->debugPrint();
   ui->labelAuthor->setText(attrs->getAuthor());
   ui->labelDictName->setText(attrs->getDictname());
   QString coAuthors;

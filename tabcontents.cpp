@@ -270,7 +270,22 @@ bool TabContents::showLegend() {
        qDebug() << "accepted";
        legend.setNewDictData();
        dictAttrs.debugPrint();
-//     update db entry here
+       QSqlQuery dictAttributesUpdate(db);
+       dictAttributesUpdate.prepare("UPDATE dict_attributes "
+                                    "SET dict_coauthors = :coauthors, dict_classification_tags = :tags, dict_description = :description "
+                                    "WHERE id=1;");
+       dictAttributesUpdate.bindValue(":coauthors", QVariant(dictAttrs.getCoauthorsQString()));
+       dictAttributesUpdate.bindValue(":tags", dictAttrs.getTagsQString());
+       dictAttributesUpdate.bindValue(":description", dictAttrs.getDescription());
+
+       if (!dictAttributesUpdate.exec()) {
+          //TODO: Cleanup
+           qDebug() << "Can't insert sound blob description";
+           qDebug() << "Query was the following: " << getLastExecutedQuery(dictAttributesUpdate);
+           qDebug() << db.lastError().text();
+           return false;
+       }
+       qDebug() << "Successfully updated dict info";
     }
   return true;
 }

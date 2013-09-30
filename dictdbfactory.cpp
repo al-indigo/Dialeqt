@@ -31,7 +31,7 @@ QSqlDatabase DictDbFactory::createConnection(const QString &connectionName) {
     return db;
 }
 
-bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase &db)
+bool DictDbFactory::initDb(DictGlobalAttributes &attrs, const QSqlDatabase &db)
 {
     if (!db.isValid()) {
         qDebug() << "Database is " << db.isOpen() << " and it's because " << db.isOpenError();
@@ -221,8 +221,8 @@ bool DictDbFactory::initDb(const DictGlobalAttributes &attrs, const QSqlDatabase
     query.bindValue(":dictName", attrs.getDictname());
     query.bindValue(":dictAuthor", attrs.getAuthor());
     //TODO: make set serialization/deserialization
-    query.bindValue(":dictCoauthors", *attrs.getCoauthors().begin());
-    query.bindValue(":dictTags", *attrs.getTags().begin());
+    query.bindValue(":dictCoauthors", attrs.getCoauthorsQString());
+    query.bindValue(":dictTags", attrs.getTagsQString());
 
     query.bindValue(":dictDescription", attrs.getDescription());
     qDebug() << "Going to execute the following query: " << query.lastQuery();

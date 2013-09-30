@@ -75,6 +75,11 @@ public:
              void setTags (QStringList _tags);
              void setDescription (QString _descr) { description = _descr; }
 
+             QString getTagsQString();
+             QString getCoauthorsQString();
+
+
+
 signals:
     
 public slots:
