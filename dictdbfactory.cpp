@@ -138,6 +138,14 @@ bool DictDbFactory::initDb(DictGlobalAttributes &attrs, const QSqlDatabase &db)
         qDebug() << "Tales table created ok";
     }
 
+    if (!query.exec("INSERT into fairy_tales (id, tale_name) VALUES (1, 'Легенда словаря');")) {
+        qDebug() << "Failed to insert legend into fairy_tales";
+        qDebug() << db.lastError().text();
+        return false;
+      } else {
+        qDebug() << "Legend inserted ok";
+      }
+
     /* table fairy_tales_blobs */
     /* These blobs are NOT global; they store only fairy tales and legend blobs*/
     if (!query.exec(
