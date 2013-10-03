@@ -127,7 +127,7 @@ bool DictDbFactory::initDb(DictGlobalAttributes &attrs, const QSqlDatabase &db)
               "id          INTEGER PRIMARY KEY "
                                   "NOT NULL "
                                   "UNIQUE, "
-              "tale_name        TEXT"
+              "tale_name        TEXT, "
               "tale             TEXT"
           ");"
           )) {
@@ -153,8 +153,10 @@ bool DictDbFactory::initDb(DictGlobalAttributes &attrs, const QSqlDatabase &db)
               "id          INTEGER PRIMARY KEY "
                                   "NOT NULL "
                                   "UNIQUE, "
-              "filename    TEXT,"
-              "blob    BLOB NOT NULL"
+              "tale_id      INTEGER NOT NULL, "
+              "filename    TEXT, "
+              "blob    BLOB NOT NULL, "
+              "FOREIGN KEY (tale_id) REFERENCES fairy_tales (id) ON DELETE CASCADE ON UPDATE CASCADE MATCH FULL"
           ");"
           )) {
         qDebug() << "Failed to create blobs table";

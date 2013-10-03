@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>459</width>
-    <height>397</height>
+    <width>596</width>
+    <height>420</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Сказания и легенда словаря</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -33,17 +33,17 @@
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="2" column="1">
-       <widget class="QLineEdit" name="lineEdit"/>
+       <widget class="QLineEdit" name="talesName"/>
       </item>
       <item row="2" column="2">
-       <widget class="QToolButton" name="toolButton">
+       <widget class="QToolButton" name="submitNewTale">
         <property name="text">
          <string>Добавить сказание</string>
         </property>
        </widget>
       </item>
       <item row="0" column="0" colspan="3">
-       <widget class="QComboBox" name="comboBox"/>
+       <widget class="QComboBox" name="talesList"/>
       </item>
      </layout>
     </widget>
@@ -53,14 +53,53 @@
      <property name="title">
       <string>Выбранная история</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <widget class="QPlainTextEdit" name="plainTextEdit"/>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QPlainTextEdit" name="taleText">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>400</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
       </item>
-      <item>
-       <widget class="QToolButton" name="toolButton_2">
+      <item row="0" column="1" alignment="Qt::AlignRight">
+       <widget class="QColumnView" name="attachesList">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Ignored">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QToolButton" name="attachFile">
         <property name="text">
-         <string>Открыть менеджер файлов для выбранной истории</string>
+         <string>Приложить к истории файл</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QToolButton" name="saveButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Сохранить текст истории</string>
         </property>
        </widget>
       </item>
@@ -86,9 +125,9 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="close">
         <property name="text">
-         <string>закрыть</string>
+         <string>Закрыть (сохранение текста НЕ происходит автоматически)</string>
         </property>
        </widget>
       </item>

@@ -364,7 +364,8 @@ bool TabContents::showPhonology() {
 }
 
 bool TabContents::showTales() {
-  TalesWindow tales(this);
+  TalesWindow tales(db, this);
+
   tales.exec();
   return true;
 }
