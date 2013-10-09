@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     playwindow.cpp \
     editablesqlmodel.cpp \
     playlistmodel.cpp \
-    utils.cpp
+    utils.cpp \
+    addconnection.cpp
 
 HEADERS  += dialeqt.h \
     dialogcreatenewdictionary.h \
@@ -42,7 +43,8 @@ HEADERS  += dialeqt.h \
     playwindow.h \
     editablesqlmodel.h \
     playlistmodel.h \
-    utils.h
+    utils.h \
+    addconnection.h
 
 FORMS    += dialeqt.ui \
     dialogcreatenewdictionary.ui \
@@ -52,4 +54,5 @@ FORMS    += dialeqt.ui \
     taleswindow.ui \
     paradigmwindow.ui \
     etimologywindow.ui \
-    playwindow.ui
+    playwindow.ui \
+    addconnection.ui

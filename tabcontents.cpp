@@ -8,6 +8,7 @@
 #include <QSqlRelationalTableModel>
 #include <QSqlRelationalDelegate>
 #include <QFileDialog>
+#include <QDateTime>
 
 #include "tabcontents.h"
 #include "customquerydiagnostics.h"
@@ -22,14 +23,15 @@
 #include "ui_tabcontents.h"
 
 
-TabContents::TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent) :
+TabContents::TabContents(DictGlobalAttributes _dictAttrs, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent) :
   dictAttrs(_dictAttrs),
   QWidget(parent),
   db(QSqlDatabase::database(dictAttrs.getFilename())),
   ui(new Ui::TabContents),
   soundChosen(false),
   praatChosen(false),
-  praatRightChosen(false)
+  praatRightChosen(false),
+  dictsOpened(_dictsOpened)
 {
   ui->setupUi(this);
 
@@ -291,7 +293,30 @@ bool TabContents::showLegend() {
 }
 
 bool TabContents::showEtimology() {
-  EtimologyWindow etimology(this);
+  QItemSelectionModel *select = ui->dictionaryTable->selectionModel();
+
+  if (!select->hasSelection()) {
+      errorMsg("Вы не выбрали слово, для которого необходимо отобразить этимологию");
+      return false;
+  }
+  QModelIndex index = ui->dictionaryTable->currentIndex();
+  QVariant wordid = index.sibling(index.row(),0).data();
+  qDebug() << wordid;
+  QVariant word = index.sibling(index.row(),1).data();
+  qDebug() << word;
+  QVariant transcription = index.sibling(index.row(),2).data();
+  qDebug() << transcription.toString();
+  QVariant tag = index.sibling(index.row(),6).data();
+  qDebug() << tag;
+  if (tag == "") {
+      QString cur_time = QString::number(QDateTime::currentMSecsSinceEpoch());
+//      QString ct;
+//      ct.setNum(cur_time,10);
+      tag = cur_time + transcription.toString();
+      qDebug() << tag;
+    }
+
+  EtimologyWindow etimology(wordid, transcription, tag, db, dictsOpened, this);
   etimology.exec();
   return true;
 }

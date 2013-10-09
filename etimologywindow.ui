@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>599</width>
+    <width>778</width>
     <height>486</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Этимология слова</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -21,97 +21,41 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QTableWidget" name="tableWidget">
-        <row>
-         <property name="text">
-          <string/>
-         </property>
-        </row>
-        <row>
-         <property name="text">
-          <string/>
-         </property>
-        </row>
-        <row>
-         <property name="text">
-          <string/>
-         </property>
-        </row>
-        <column>
-         <property name="text">
-          <string>Имя словаря</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Слово</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Транскрипция</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Перевод</string>
-         </property>
-        </column>
-        <item row="0" column="0">
-         <property name="text">
-          <string>Английский общей лексики</string>
-         </property>
-        </item>
-        <item row="0" column="1">
-         <property name="text">
-          <string>alphabet</string>
-         </property>
-        </item>
-        <item row="0" column="2">
-         <property name="text">
-          <string>'ælfəbət</string>
-         </property>
-        </item>
-        <item row="0" column="3">
-         <property name="text">
-          <string>алфавит</string>
-         </property>
-        </item>
-        <item row="1" column="0">
-         <property name="text">
-          <string>Новый французско-русский</string>
-         </property>
-        </item>
-        <item row="1" column="1">
-         <property name="text">
-          <string>alphabet </string>
-         </property>
-        </item>
-        <item row="1" column="2">
-         <property name="text">
-          <string>alfabɛ</string>
-         </property>
-        </item>
-        <item row="1" column="3">
-         <property name="text">
-          <string>алфавит</string>
-         </property>
-        </item>
-        <item row="2" column="0">
-         <property name="text">
-          <string>Испанско-русский</string>
-         </property>
-        </item>
-        <item row="2" column="1">
-         <property name="text">
-          <string>alfabeto </string>
-         </property>
-        </item>
-        <item row="2" column="3">
-         <property name="text">
-          <string>алфавит</string>
-         </property>
-        </item>
+       <widget class="QTreeView" name="treeView"/>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_3">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="title">
+         <string>Слова из выбранного словаря</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QListView" name="listView">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="toolButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Перейти к выбранному слову</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
@@ -136,14 +80,17 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QToolButton" name="toolButton">
+       <widget class="QComboBox" name="dictsDropdown"/>
+      </item>
+      <item>
+       <widget class="QToolButton" name="addConnectionButton">
         <property name="text">
-         <string>Добавить новую связь</string>
+         <string>Добавить новую связь со словом из выбранного словаря</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="close">
         <property name="text">
          <string>Закрыть</string>
         </property>

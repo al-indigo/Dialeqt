@@ -33,7 +33,8 @@ bool DictTabsContainer::createDictTabInitial(DictGlobalAttributes dictAttrs)
 
 
 //      this->addTab(view, dictAttrs.getFilename());
-      this->addTab(new TabContents(dictAttrs, this), dictAttrs.getDictname());
+      this->addTab(new TabContents(dictAttrs, &(this->dictsOpened), this), dictAttrs.getDictname());
+      this->dictsOpened.insert(dictAttrs);
 
       return true;
 
@@ -97,7 +98,8 @@ bool DictTabsContainer::openDictTabInitial(DictGlobalAttributes & dictAttrs, con
                   dictAttrs = tmpDictAttrs;
                   qDebug() << "Opened a dictionary and constructed the following attributes";
                   dictAttrs.debugPrint();
-                  this->addTab(new TabContents(dictAttrs, this), dictAttrs.getDictname());
+                  this->addTab(new TabContents(dictAttrs, &(this->dictsOpened), this), dictAttrs.getDictname());
+                  this->dictsOpened.insert(dictAttrs);
                 }
             } else {
               qDebug() << "Query to db failed; maybe it's not a dictionary";
@@ -118,4 +120,12 @@ bool DictTabsContainer::openDictTabInitial(DictGlobalAttributes & dictAttrs, con
 bool DictTabsContainer::createTab(DictGlobalAttributes dictAttrs)
 {
   return true;
+}
+
+bool DictTabsContainer::isDictOpened(QString dbId)
+{
+  foreach (const DictGlobalAttributes &item, this->dictsOpened) {
+      if (item.getDbId() == dbId) return true;
+    }
+  return false;
 }

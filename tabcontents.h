@@ -34,8 +34,10 @@ protected:
   QString praatRightFormFilenameMarkup;
   QString praatRightFormFilenameSound;
   QString praatRightFormDescription;
+
+   QSet<DictGlobalAttributes> * dictsOpened;
 public:
-  explicit TabContents(DictGlobalAttributes _dictAttrs, QWidget *parent = 0);
+  explicit TabContents(DictGlobalAttributes _dictAttrs,  QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent = 0);
   ~TabContents();
 
 signals:
