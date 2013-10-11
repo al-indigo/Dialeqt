@@ -2,8 +2,10 @@
 #include "ui_etimologywindow.h"
 #include <QDebug>
 #include <QSet>
+#include <QSqlQuery>
 
 #include "addconnection.h"
+#include "utils.h"
 
 EtimologyWindow::EtimologyWindow(QVariant _wordid, QVariant _word_transcription, QVariant _etimology_tag, QSqlDatabase _current_db, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent) :
   wordid(_wordid),
@@ -17,7 +19,15 @@ EtimologyWindow::EtimologyWindow(QVariant _wordid, QVariant _word_transcription,
   ui->setupUi(this);
   model = new QSqlQueryModel();
   wordsmodel = new QSqlQueryModel();
-  model->setQuery("SELECT dict_attributes.id, \
+  QString dirty = QString("SELECT dict_attributes.id, \
+                          dict_attributes.dict_name, \
+                          dict_attributes.dict_classification_tags, \
+                          dict_attributes.dict_identificator \
+                          FROM \
+                          dict_attributes \
+                          JOIN etimology ON (dict_attributes.id = etimology.dictid) \
+                          JOIN dictionary ON (etimology.wordid = dictionary.id AND dictionary.etimology_tag = ") + QString("'") + tag.toString() + QString("') ") + QString("GROUP BY dict_attributes.id;");
+/*  model->setQuery("SELECT dict_attributes.id, \
                   dict_attributes.dict_name, \
                   dict_attributes.dict_classification_tags, \
                   dict_attributes.dict_identificator \
@@ -25,7 +35,9 @@ EtimologyWindow::EtimologyWindow(QVariant _wordid, QVariant _word_transcription,
                   dict_attributes \
                   JOIN etimology ON (dict_attributes.id = etimology.dictid) \
                   JOIN dictionary ON (etimology.wordid = dictionary.id) \
-                  GROUP BY dict_attributes.id;", db);
+                  GROUP BY dict_attributes.id;", db); */
+  model->setQuery(dirty, db);
+  qDebug() << dirty;
   model->setHeaderData(1, Qt::Horizontal, QObject::tr("Название словаря"));
   model->setHeaderData(2, Qt::Horizontal, QObject::tr("К каким группам относится словарь"));
 
@@ -43,6 +55,7 @@ EtimologyWindow::EtimologyWindow(QVariant _wordid, QVariant _word_transcription,
   connect(ui->treeView , SIGNAL(clicked(QModelIndex)), this, SLOT(findWords()));
   connect(ui->treeView, SIGNAL(activated(QModelIndex)), this, SLOT(findWords()));
   connect(ui->addConnectionButton, SIGNAL(clicked()), this, SLOT(openDbAndAddConnection()));
+  connect(ui->close, SIGNAL(clicked()), this, SLOT(close()));
 }
 
 bool EtimologyWindow::openDbAndAddConnection() {
@@ -59,18 +72,27 @@ bool EtimologyWindow::findWords() {
   foreach (const DictGlobalAttributes &item, *this->dictsOpened) {
     if (item.getDbId() == param) {
         qDebug() << "Selected db is opened now";
-        wordsmodel->setQuery("SELECT dictionary.id, dictionary.transcription FROM dictionary;", QSqlDatabase::database(item.getFilename()));
+//        QSqlQuery modelquery(QSqlDatabase::database(item.getFilename()));
+//        modelquery.prepare("SELECT dictionary.id, dictionary.transcription FROM dictionary WHERE etimology_tag=:tag;");
+//        modelquery.bindValue(":tag", tag);
+        QString dirty = QString("SELECT dictionary.id, dictionary.transcription FROM dictionary WHERE etimology_tag=") + QString("'") + tag.toString() + QString("';");
+//        wordsmodel->setQuery(modelquery);
+//        wordsmodel->setQuery("SELECT dictionary.id, dictionary.transcription FROM dictionary WHERE etimology_tag='1381452591621test1';", QSqlDatabase::database(item.getFilename()));
+        wordsmodel->setQuery(dirty, QSqlDatabase::database(item.getFilename()));
         ui->listView->setModel(wordsmodel);
         ui->listView->setModelColumn(1);
         return true;
     }
   }
   qDebug() << "Selected db is closed now";
+  errorMsg("Этот словарь сейчас не открыт в программе: чтобы посмотреть взаимосвязи для этого словаря, вам сначала нужно его открыть.");
+
   return false;
 }
 
 EtimologyWindow::~EtimologyWindow()
 {
+  delete wordsmodel;
   delete model;
   delete ui;
 }
