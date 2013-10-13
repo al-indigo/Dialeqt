@@ -9,6 +9,7 @@
 #include <QSqlRelationalDelegate>
 #include <QFileDialog>
 #include <QDateTime>
+#include <QProcess>
 
 #include "tabcontents.h"
 #include "customquerydiagnostics.h"
@@ -97,14 +98,71 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QSet<DictGlobalAttribu
   connect(ui->choosePraat, SIGNAL(clicked()), this, SLOT(choosePraatRight()));
   connect(ui->praatDescription_2, SIGNAL(textChanged(QString)), this, SLOT(checkPraatRightDescription()));
   connect(ui->submitPraat, SIGNAL(clicked()), this, SLOT(submitRightPraat()));
+  connect(ui->sendToPraat, SIGNAL(clicked()), this, SLOT(sendToPraat()));
 
 //  ui->paradigmButton->setDisabled(true);
-  ui->sendToPraat->setDisabled(true);
+//  ui->sendToPraat->setDisabled(true);
   ui->phonologyButton->setDisabled(true);
 //  ui->legendButton->setDisabled(true);
 //  ui->talesButton->setDisabled(true);
   ui->deleteButton->setDisabled(true);
 }
+
+bool TabContents::sendToPraat() {
+  QItemSelectionModel *select = ui->praatList->selectionModel();
+
+  if (!select->hasSelection()) {
+      errorMsg("Вы не выбрали элементы для отправки в Praat");
+      return false;
+  }
+  QModelIndex index = ui->praatList->currentIndex();
+  QVariant praatblobid = index.sibling(index.row(),0).data();
+  QVariant praatname = index.sibling(index.row(),2).data();
+  qDebug() << praatblobid;
+
+  QSqlQuery query_blobs(db);
+  query_blobs.prepare("SELECT mainblob, secblob FROM blobs WHERE blobs.id = :blobid");
+  query_blobs.bindValue(":blobid", praatblobid);
+  query_blobs.exec();
+  qDebug() << getLastExecutedQuery(query_blobs);
+
+
+  // I do it because sendpraat is dumb: it doesn't understand paths with spaces and non-ASCII
+  QString dest_dir = QDir::tempPath();
+  qDebug() << "temp is here: " << dest_dir;
+
+  QString basename = QString::number(QDateTime::currentMSecsSinceEpoch());
+
+  while (query_blobs.next()) {
+      if (!extractSound(dest_dir, basename + QString(".wav"), query_blobs.value("mainblob").toByteArray())) {
+          qDebug() << "Can't decompress sound blobs";
+          errorMsg("Не удалось распаковать звук из праатовской пары файлов, так быть не должно. Либо у вас кончается место на диске, либо это ошибка -- напишите разработчику и не редактируйте словарь, пока он не ответит.");
+          return false;
+      } else {
+          if (!extractSound(dest_dir, basename + QString(".TextGrid"), query_blobs.value("secblob").toByteArray())) {
+              qDebug() << "Can't decompress praat markup";
+              errorMsg("Не удалось распаковать разметку из праатовской пары файлов, так быть не должно. Либо у вас кончается место на диске, либо это ошибка -- напишите разработчику и не редактируйте словарь, пока он не ответит.");
+              return false;
+          }
+      }
+   }
+  QProcess::startDetached("Praat.exe");
+  QStringList args;
+  QString arg1 = QString("praat");
+  QString arg2 = QString("sound = Read from file... %1/%2.wav").arg(dest_dir, basename);
+  QString arg3 = QString("markup = Read from file... %1/%2.TextGrid").arg(dest_dir, basename);
+  QString arg4 = QString("selectObject(sound,markup)");
+  QString arg5 = QString("View & Edit");
+  qDebug() << "args for praatsend: " << arg1 << arg2 << arg3 << arg4 << arg5;
+  args.append(arg1);
+  args.append(arg2);
+  args.append(arg3);
+  args.append(arg4);
+  args.append(arg5);
+  QProcess::execute("sendpraat.exe", args);
+  return true;
+}
+
 
 bool TabContents::chooseSound() {
   if (!this->soundChosen) {
