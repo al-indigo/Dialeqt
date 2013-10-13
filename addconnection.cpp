@@ -6,11 +6,9 @@
 #include "utils.h"
 #include "customquerydiagnostics.h"
 
-AddConnection::AddConnection(QVariant _wordid, QVariant _word_transcription, QVariant _etimology_tag, QSqlDatabase _initialWordDB, QSqlDatabase _acceptorWordDB, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent) :
-  initialWordID(_wordid),
-  initialWordTranscription(_word_transcription),
+AddConnection::AddConnection(QList<QPair<QString, QVariant>> _wordsToConnect, QVariant _etimology_tag, QSqlDatabase _acceptorWordDB, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent) :
+  wordsToConnect(_wordsToConnect),
   tag(_etimology_tag),
-  initialWordDB(_initialWordDB),
   acceptorWordDB(_acceptorWordDB),
   dictsOpened(_dictsOpened),
   QDialog(parent),
@@ -32,15 +30,24 @@ AddConnection::AddConnection(QVariant _wordid, QVariant _word_transcription, QVa
   ui->tableView->setColumnWidth(2, 180);
   ui->tableView->setColumnHidden(0, true);
 
-  connect(ui->acceptConnection, SIGNAL(clicked()), this, SLOT(connectWords()));
+  connect(ui->acceptConnection, SIGNAL(clicked()), this, SLOT(cyclicConnector()));
   connect(ui->close, SIGNAL(clicked()), this, SLOT(close()));
 }
+
+bool AddConnection::cyclicConnector() {
+  for (QList<QPair<QString, QVariant>>::Iterator i = wordsToConnect.begin(); i!= wordsToConnect.end(); i++ ) {
+      QPair<QString, QVariant> temp = *i;
+      connectWords( QSqlDatabase::database(temp.first), temp.second);
+    }
+  return true;
+}
+
 
 /*
  * This is very dangerous function, I know. Very little time to finish this version, so I must return to it later
  *This is REALLY very unsafe
  * TODO: FIXME: */
-bool AddConnection::connectWords()
+bool AddConnection::connectWords(QSqlDatabase initialWordDB, QVariant initialWordID)
 {
   QItemSelectionModel *select = ui->tableView->selectionModel();
 

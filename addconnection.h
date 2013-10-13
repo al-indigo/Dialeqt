@@ -13,23 +13,24 @@ namespace Ui {
 class AddConnection : public QDialog
 {
   Q_OBJECT
-  QVariant initialWordID;
-  QVariant initialWordTranscription;
+//  QVariant initialWordID;
+//  QVariant initialWordTranscription;
   QVariant tag;
-  QSqlDatabase initialWordDB;
+//  QSqlDatabase initialWordDB;
   QSqlDatabase acceptorWordDB;
   QSet<DictGlobalAttributes> * dictsOpened;
   QSqlQueryModel * model;
+  QList<QPair<QString, QVariant>> wordsToConnect;
 
 public:
-  explicit AddConnection(QVariant _wordid, QVariant _word_transcription, QVariant _etimology_tag, QSqlDatabase _initialWordDB, QSqlDatabase _acceptorWordDB, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent = 0);
+  explicit AddConnection(QList<QPair<QString, QVariant>> _wordsToConnect, QVariant _etimology_tag, QSqlDatabase _acceptorWordDB, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent = 0);
   ~AddConnection();
 
 private slots:
-  bool connectWords();
-  
+  bool cyclicConnector();
 private:
   Ui::addConnection *ui;
+  bool connectWords(QSqlDatabase initialWordDB, QVariant initialWordID);
 };
 
 #endif // ADDCONNECTION_H

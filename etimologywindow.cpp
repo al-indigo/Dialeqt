@@ -56,11 +56,90 @@ EtimologyWindow::EtimologyWindow(QVariant _wordid, QVariant _word_transcription,
   connect(ui->treeView, SIGNAL(activated(QModelIndex)), this, SLOT(findWords()));
   connect(ui->addConnectionButton, SIGNAL(clicked()), this, SLOT(openDbAndAddConnection()));
   connect(ui->close, SIGNAL(clicked()), this, SLOT(close()));
+
+  this->checkConnectedDatabases();
+}
+
+// here we understand if we can connect our word with anything -- we can't if not all the databases are opened now
+bool EtimologyWindow::checkConnectedDatabases() {
+  this->connectionNamesForDicts.clear();
+
+  QSqlQuery getConnectedDbList(this->db);
+  getConnectedDbList.prepare("SELECT \
+                             dict_attributes.dict_identificator \
+                             FROM \
+                             dict_attributes \
+                             JOIN etimology ON (dict_attributes.id = etimology.dictid) \
+                             JOIN dictionary ON (etimology.wordid = dictionary.id AND dictionary.etimology_tag = :tag) \
+                             GROUP BY dict_attributes.id;");
+  getConnectedDbList.bindValue(":tag", this->tag);
+  if (!getConnectedDbList.exec()) {
+      errorMsg("Не получается получить список связанных со словом словарей. Вы можете просмотреть связи, но не можете добавлять новые.");
+      ui->addConnectionButton->setDisabled(true);
+      return false;
+    }
+  QSet<QString> openedDbIdentifiers;
+  foreach (const DictGlobalAttributes &item, *this->dictsOpened) {
+      openedDbIdentifiers.insert(item.getDbId());
+      qDebug() << "opened db list " << item.getDbId();
+    }
+
+  QSet<QString> connectedDbIdentifiers;
+  while (getConnectedDbList.next()) {
+      connectedDbIdentifiers.insert(getConnectedDbList.value("dict_identificator").toString());
+      qDebug() << "connected db list " << getConnectedDbList.value("dict_identificator").toString();
+    }
+
+  if (!openedDbIdentifiers.contains(connectedDbIdentifiers)) {
+      connectedDbIdentifiers.subtract(openedDbIdentifiers);
+      QString missingList;
+      foreach (const QString &item, connectedDbIdentifiers) {
+          missingList += item + " ";
+        }
+
+      errorMsg("Не все словари, с которыми связано слово, открыты. Вы можете просмотреть связи слова со словами из открытых словарей, но не можете добавить новые. Список недостающих словарей (это их идентификаторы):" + missingList);
+      ui->addConnectionButton->setDisabled(true);
+      return false;
+    }
+  connectedDbIdentifiers.intersect(openedDbIdentifiers);
+  foreach (const DictGlobalAttributes &dict, *this->dictsOpened) {
+      if (connectedDbIdentifiers.contains(dict.getDbId())) {
+          this->connectionNamesForDicts.insert(dict.getFilename());
+        }
+    }
+
+  return true;
+}
+
+bool EtimologyWindow::prepareForConnection () {
+  wordsToConnect.clear();
+  foreach (const QString &dbitem, this->connectionNamesForDicts) {
+      QSqlQuery findWordsByTag(QSqlDatabase::database(dbitem));
+      findWordsByTag.prepare("SELECT dictionary.id FROM dictionary WHERE etimology_tag=:tag;");
+      findWordsByTag.bindValue(":tag", this->tag);
+      if (!findWordsByTag.exec()) {
+          errorMsg("Похоже, консистентность словарей нарушена. Пришлите все связанные с этим словом словари, слово, которое вы пытаетесь связать и слово с которым вы пытаетесь его связать разработчику и не трогайте ничего, пока он не ответит. Или у вас ломается жёсткий диск, но это куда менее вероятно.");
+          return false;
+        }
+      while (findWordsByTag.next()) {
+          wordsToConnect.append(QPair<QString, QVariant>(dbitem,findWordsByTag.value("id")));
+        }
+    }
+  wordsToConnect.append(QPair<QString, QVariant>(db.connectionName(),wordid));
+  return true;
 }
 
 bool EtimologyWindow::openDbAndAddConnection() {
-  AddConnection connection_window(wordid, wordtranscription, tag, db, QSqlDatabase::database(ui->dictsDropdown->itemData(ui->dictsDropdown->currentIndex()).toString()), dictsOpened);
+  this->checkConnectedDatabases();
+
+  this->prepareForConnection();
+
+  AddConnection connection_window(wordsToConnect, tag, QSqlDatabase::database(ui->dictsDropdown->itemData(ui->dictsDropdown->currentIndex()).toString()), dictsOpened);
+
   connection_window.exec();
+
+  this->checkConnectedDatabases(); //it's needed for consistency check
+
   return true;
 }
 

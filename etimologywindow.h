@@ -21,6 +21,8 @@ class EtimologyWindow : public QDialog
   QSqlQueryModel *model;
   QSqlQueryModel *wordsmodel;
   QSet<DictGlobalAttributes> * dictsOpened;
+  QSet<QString> connectionNamesForDicts;
+  QList<QPair<QString, QVariant>> wordsToConnect;
 public:
   explicit EtimologyWindow(QVariant _wordid, QVariant _word_transcription, QVariant _etimology_tag, QSqlDatabase _currentDb, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent = 0);
   ~EtimologyWindow();
@@ -30,6 +32,8 @@ private slots:
   bool openDbAndAddConnection();
 private:
   Ui::EtimologyWindow *ui;
+  bool checkConnectedDatabases();
+  bool prepareForConnection();
 };
 
 #endif // ETIMOLOGYWINDOW_H
