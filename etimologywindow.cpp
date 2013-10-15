@@ -19,7 +19,7 @@ EtimologyWindow::EtimologyWindow(QVariant _wordid, QVariant _word_transcription,
   ui->setupUi(this);
   model = new QSqlQueryModel();
   wordsmodel = new QSqlQueryModel();
-  QString dirty = QString("SELECT dict_attributes.id, \
+  this->wordsModelQuery = QString("SELECT dict_attributes.id, \
                           dict_attributes.dict_name, \
                           dict_attributes.dict_classification_tags, \
                           dict_attributes.dict_identificator \
@@ -36,8 +36,8 @@ EtimologyWindow::EtimologyWindow(QVariant _wordid, QVariant _word_transcription,
                   JOIN etimology ON (dict_attributes.id = etimology.dictid) \
                   JOIN dictionary ON (etimology.wordid = dictionary.id) \
                   GROUP BY dict_attributes.id;", db); */
-  model->setQuery(dirty, db);
-  qDebug() << dirty;
+  model->setQuery(this->wordsModelQuery, db);
+  qDebug() << this->wordsModelQuery;
   model->setHeaderData(1, Qt::Horizontal, QObject::tr("Название словаря"));
   model->setHeaderData(2, Qt::Horizontal, QObject::tr("К каким группам относится словарь"));
 
@@ -139,6 +139,8 @@ bool EtimologyWindow::openDbAndAddConnection() {
   connection_window.exec();
 
   this->checkConnectedDatabases(); //it's needed for consistency check
+
+  model->setQuery(this->wordsModelQuery, db);
 
   return true;
 }

@@ -95,6 +95,7 @@ bool AddConnection::connectWords(QSqlDatabase initialWordDB, QVariant initialWor
                                           "dialeqt_version "
                                           "FROM dict_attributes WHERE id=1;")) {
       errorMsg("Не удалось получить данные о втором словаре перед вставкой, так быть не должно: расскажите об этом разработчику и пришлите словари и транскрипции слов, которые вы пытались связать");
+      qDebug() << "Query was the following: " << getLastExecutedQuery(get_dict_info_for_acceptor_db);
 //      return false;
     }
 
@@ -128,19 +129,21 @@ bool AddConnection::connectWords(QSqlDatabase initialWordDB, QVariant initialWor
   insert_or_replace_initial_db.bindValue(":dialeqt_version", get_dict_info_for_acceptor_db.value(7));
   if (!insert_or_replace_initial_db.exec()) {
       errorMsg("Ошибка при вставке в таблицу словарей первого словаря информации о втором: расскажите об этом разработчику и пришлите словари и транскрипции слов, которые вы пытались связать");
+      qDebug() << "Query was the following: " << getLastExecutedQuery(insert_or_replace_initial_db);
       return false;
     }
 
   QSqlQuery insert_etimology_initial(initialWordDB);
-  insert_etimology_initial.prepare("INSERT INTO etimology "
-                           "(wordid, dictid) "
+  insert_etimology_initial.prepare("INSERT OR REPLACE INTO etimology "
+                           "(id, wordid, dictid) "
                            "VALUES "
-                           "(:wordid, :dictid)"
+                           "((SELECT id from etimology WHERE wordid = :wordid AND dictid = :dictid), :wordid, :dictid)"
                            ";");
   insert_etimology_initial.bindValue(":wordid", initialWordID);
   insert_etimology_initial.bindValue(":dictid", insert_or_replace_initial_db.lastInsertId());
   if (!insert_etimology_initial.exec()) {
       errorMsg("Ошибка при вставке в таблицу связей первого словаря информации о втором: расскажите об этом разработчику и пришлите словари и транскрипции слов, которые вы пытались связать");
+      qDebug() << "Query was the following: " << getLastExecutedQuery(insert_etimology_initial);
       return false;
     }
 
@@ -185,19 +188,21 @@ bool AddConnection::connectWords(QSqlDatabase initialWordDB, QVariant initialWor
   insert_or_replace_acceptor_db.bindValue(":dialeqt_version", get_dict_info_for_initial_db.value(7));
   if (!insert_or_replace_acceptor_db.exec()) {
       errorMsg("Ошибка при вставке в таблицу словарей второго словаря информации о первом: расскажите об этом разработчику и пришлите словари и транскрипции слов, которые вы пытались связать");
+      qDebug() << "Query was the following: " << getLastExecutedQuery(insert_or_replace_acceptor_db);
       return false;
     }
 
   QSqlQuery insert_etimology_acceptor(acceptorWordDB);
-  insert_etimology_acceptor.prepare("INSERT INTO etimology "
-                           "(wordid, dictid) "
+  insert_etimology_acceptor.prepare("INSERT OR REPLACE INTO etimology "
+                           "(id, wordid, dictid) "
                            "VALUES "
-                           "(:wordid, :dictid)"
+                           "((SELECT id from etimology WHERE wordid = :wordid AND dictid = :dictid), :wordid, :dictid)"
                            ";");
   insert_etimology_acceptor.bindValue(":wordid", wordid);
   insert_etimology_acceptor.bindValue(":dictid", insert_or_replace_acceptor_db.lastInsertId());
   if (!insert_etimology_acceptor.exec()) {
       errorMsg("Ошибка при вставке в таблицу связей второго словаря информации о первом: расскажите об этом разработчику и пришлите словари и транскрипции слов, которые вы пытались связать");
+      qDebug() << "Query was the following: " << getLastExecutedQuery(insert_etimology_acceptor);
       return false;
     }
 

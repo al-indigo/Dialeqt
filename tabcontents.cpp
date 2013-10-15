@@ -376,6 +376,8 @@ bool TabContents::showEtimology() {
 
   EtimologyWindow etimology(wordid, transcription, tag, db, dictsOpened, this);
   etimology.exec();
+  this->dictModel->select();
+  ui->dictionaryTable->setCurrentIndex(index);
   return true;
 }
 
