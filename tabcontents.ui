@@ -512,8 +512,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Показать
-легенду
+               <string>Атрибуты
 словаря</string>
               </property>
              </widget>
@@ -542,7 +541,8 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Сказания</string>
+               <string>Легенда словаря
+ и сказания</string>
               </property>
              </widget>
             </item>
@@ -587,9 +587,10 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Добавить
-этимологическую
-связь</string>
+               <string>Просмотр
+и редактирование
+этимологических
+связей</string>
               </property>
              </widget>
             </item>
