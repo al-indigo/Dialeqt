@@ -6,6 +6,7 @@
 
 #include "addconnection.h"
 #include "utils.h"
+#include "customquerydiagnostics.h"
 
 EtimologyWindow::EtimologyWindow(QVariant _wordid, QVariant _word_transcription, QVariant _etimology_tag, QSqlDatabase _current_db, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent) :
   wordid(_wordid),
@@ -19,7 +20,7 @@ EtimologyWindow::EtimologyWindow(QVariant _wordid, QVariant _word_transcription,
   ui->setupUi(this);
   model = new QSqlQueryModel();
   wordsmodel = new QSqlQueryModel();
-  this->wordsModelQuery = QString("SELECT dict_attributes.id, \
+/*  this->wordsModelQuery = QString("SELECT dict_attributes.id, \
                           dict_attributes.dict_name, \
                           dict_attributes.dict_classification_tags, \
                           dict_attributes.dict_identificator \
@@ -27,17 +28,22 @@ EtimologyWindow::EtimologyWindow(QVariant _wordid, QVariant _word_transcription,
                           dict_attributes \
                           JOIN etimology ON (dict_attributes.id = etimology.dictid) \
                           JOIN dictionary ON (etimology.wordid = dictionary.id AND dictionary.etimology_tag = ") + QString("'") + tag.toString() + QString("') ") + QString("GROUP BY dict_attributes.id;");
-/*  model->setQuery("SELECT dict_attributes.id, \
-                  dict_attributes.dict_name, \
-                  dict_attributes.dict_classification_tags, \
-                  dict_attributes.dict_identificator \
-                  FROM \
-                  dict_attributes \
-                  JOIN etimology ON (dict_attributes.id = etimology.dictid) \
-                  JOIN dictionary ON (etimology.wordid = dictionary.id) \
-                  GROUP BY dict_attributes.id;", db); */
-  model->setQuery(this->wordsModelQuery, db);
-  qDebug() << this->wordsModelQuery;
+                          */
+  QSqlQuery connected_dicts(db);
+  connected_dicts.prepare("SELECT dict_attributes.id, \
+                          dict_attributes.dict_name, \
+                          dict_attributes.dict_classification_tags, \
+                          dict_attributes.dict_identificator \
+                          FROM \
+                          dict_attributes \
+                          JOIN etimology ON (dict_attributes.id = etimology.dictid) \
+                          JOIN dictionary ON (etimology.wordid = dictionary.id AND dictionary.etimology_tag = :tag) \
+                          GROUP BY dict_attributes.id;");
+  connected_dicts.bindValue(":tag", tag);
+  connected_dicts.exec();
+  model->setQuery(connected_dicts);
+
+  qDebug() << getLastExecutedQuery(model->query());
   model->setHeaderData(1, Qt::Horizontal, QObject::tr("Название словаря"));
   model->setHeaderData(2, Qt::Horizontal, QObject::tr("К каким группам относится словарь"));
 
@@ -153,13 +159,14 @@ bool EtimologyWindow::findWords() {
   foreach (const DictGlobalAttributes &item, *this->dictsOpened) {
     if (item.getDbId() == param) {
         qDebug() << "Selected db is opened now";
-//        QSqlQuery modelquery(QSqlDatabase::database(item.getFilename()));
-//        modelquery.prepare("SELECT dictionary.id, dictionary.transcription FROM dictionary WHERE etimology_tag=:tag;");
-//        modelquery.bindValue(":tag", tag);
-        QString dirty = QString("SELECT dictionary.id, dictionary.transcription FROM dictionary WHERE etimology_tag=") + QString("'") + tag.toString() + QString("';");
-//        wordsmodel->setQuery(modelquery);
+        QSqlQuery modelquery(QSqlDatabase::database(item.getFilename()));
+        modelquery.prepare("SELECT dictionary.id, dictionary.transcription FROM dictionary WHERE etimology_tag=:tag;");
+        modelquery.bindValue(":tag", tag);
+        modelquery.exec();
+//        QString dirty = QString("SELECT dictionary.id, dictionary.transcription FROM dictionary WHERE etimology_tag=") + QString("'") + tag.toString() + QString("';");
+        wordsmodel->setQuery(modelquery);
 //        wordsmodel->setQuery("SELECT dictionary.id, dictionary.transcription FROM dictionary WHERE etimology_tag='1381452591621test1';", QSqlDatabase::database(item.getFilename()));
-        wordsmodel->setQuery(dirty, QSqlDatabase::database(item.getFilename()));
+//        wordsmodel->setQuery(dirty, QSqlDatabase::database(item.getFilename()));
         ui->listView->setModel(wordsmodel);
         ui->listView->setModelColumn(1);
         return true;
