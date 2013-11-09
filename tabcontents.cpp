@@ -99,6 +99,7 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QSet<DictGlobalAttribu
   connect(ui->praatDescription_2, SIGNAL(textChanged(QString)), this, SLOT(checkPraatRightDescription()));
   connect(ui->submitPraat, SIGNAL(clicked()), this, SLOT(submitRightPraat()));
   connect(ui->sendToPraat, SIGNAL(clicked()), this, SLOT(sendToPraat()));
+  connect(parent, SIGNAL(currentChanged(int)), this, SLOT(updateModel()));
 
 //  ui->paradigmButton->setDisabled(true);
 //  ui->sendToPraat->setDisabled(true);
@@ -378,6 +379,14 @@ bool TabContents::showEtimology() {
   etimology.exec();
   this->dictModel->select();
   ui->dictionaryTable->setCurrentIndex(index);
+  return true;
+}
+
+bool TabContents::updateModel() {
+  QModelIndex index = ui->dictionaryTable->currentIndex();
+  this->dictModel->select();
+  ui->dictionaryTable->setCurrentIndex(index);
+  qDebug() << "Model has been updated";
   return true;
 }
 

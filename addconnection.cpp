@@ -75,7 +75,10 @@ void AddConnection::modelSetup() {
 bool AddConnection::cyclicConnector() {
   for (QList<QPair<QString, QVariant>>::Iterator i = wordsToConnect.begin(); i!= wordsToConnect.end(); i++ ) {
       QPair<QString, QVariant> temp = *i;
-      connectWords( QSqlDatabase::database(temp.first), temp.second);
+      for (QList<QPair<QString, QVariant>>::Iterator k = wordsToConnectWith.begin(); k!= wordsToConnectWith.end(); k++ ) {
+        QPair<QString, QVariant> tempToConnectWith = *k;
+        connectWords( QSqlDatabase::database(temp.first), temp.second, QSqlDatabase::database(tempToConnectWith.first), tempToConnectWith.second);
+      }
     }
   return true;
 }
@@ -85,7 +88,7 @@ bool AddConnection::cyclicConnector() {
  * This is very dangerous function, I know. Very little time to finish this version, so I must return to it later
  *This is REALLY very unsafe
  * TODO: FIXME: */
-bool AddConnection::connectWords(QSqlDatabase initialWordDB, QVariant initialWordID)
+bool AddConnection::connectWords(QSqlDatabase initialWordDB, QVariant initialWordID, QSqlDatabase updatedWordDB, QVariant updatedWordID)
 {
   QItemSelectionModel *select = ui->tableView->selectionModel();
 
@@ -93,9 +96,6 @@ bool AddConnection::connectWords(QSqlDatabase initialWordDB, QVariant initialWor
       errorMsg("Вы не выбрали слово, для которого необходимо нужно добавить связь");
       return false;
   }
-  QModelIndex index = ui->tableView->currentIndex();
-  QVariant wordid = index.sibling(index.row(),0).data();
-  qDebug() << wordid;
 
   QSqlQuery get_dict_info_for_initial_db(initialWordDB);
   if (!get_dict_info_for_initial_db.exec("SELECT id,"
@@ -122,7 +122,7 @@ bool AddConnection::connectWords(QSqlDatabase initialWordDB, QVariant initialWor
       return false;
     }
 
-  QSqlQuery get_dict_info_for_acceptor_db(acceptorWordDB);
+  QSqlQuery get_dict_info_for_acceptor_db(updatedWordDB);
   if (!get_dict_info_for_acceptor_db.exec("SELECT id,"
                                           "dict_identificator,"
                                           "dict_name, "
@@ -197,7 +197,7 @@ bool AddConnection::connectWords(QSqlDatabase initialWordDB, QVariant initialWor
       return false;
   }
 
-  QSqlQuery insert_or_replace_acceptor_db(acceptorWordDB);
+  QSqlQuery insert_or_replace_acceptor_db(updatedWordDB);
   insert_or_replace_acceptor_db.prepare("INSERT OR REPLACE INTO dict_attributes"
                                        "(id,"
                                        "dict_identificator,"
@@ -230,13 +230,13 @@ bool AddConnection::connectWords(QSqlDatabase initialWordDB, QVariant initialWor
       return false;
     }
 
-  QSqlQuery insert_etimology_acceptor(acceptorWordDB);
+  QSqlQuery insert_etimology_acceptor(updatedWordDB);
   insert_etimology_acceptor.prepare("INSERT OR REPLACE INTO etimology "
                            "(id, wordid, dictid) "
                            "VALUES "
                            "((SELECT id from etimology WHERE wordid = :wordid AND dictid = :dictid), :wordid, :dictid)"
                            ";");
-  insert_etimology_acceptor.bindValue(":wordid", wordid);
+  insert_etimology_acceptor.bindValue(":wordid", updatedWordID);
   insert_etimology_acceptor.bindValue(":dictid", insert_or_replace_acceptor_db.lastInsertId());
   if (!insert_etimology_acceptor.exec()) {
       errorMsg("Ошибка при вставке в таблицу связей второго словаря информации о первом: расскажите об этом разработчику и пришлите словари и транскрипции слов, которые вы пытались связать");
@@ -244,14 +244,14 @@ bool AddConnection::connectWords(QSqlDatabase initialWordDB, QVariant initialWor
       return false;
     }
 
-  QSqlQuery update_acceptor(acceptorWordDB);
+  QSqlQuery update_acceptor(updatedWordDB);
   update_acceptor.prepare("UPDATE dictionary SET etimology_tag = :tag WHERE id = :id;");
   update_acceptor.bindValue(":tag", tag);
-  update_acceptor.bindValue(":id", wordid);
+  update_acceptor.bindValue(":id", updatedWordID);
   if (!update_acceptor.exec()) {
       qDebug() << "Can't update tag for acceptor word";
       qDebug() << "Query was the following: " << getLastExecutedQuery(update_acceptor);
-      qDebug() << acceptorWordDB.lastError().text();
+      qDebug() << updatedWordDB.lastError().text();
       errorMsg("Связь не проставилась на втором этапе, расскажите об этом разработчику и пришлите словари и транскрипции слов, которые вы пытались связать");
       return false;
   }
@@ -259,6 +259,88 @@ bool AddConnection::connectWords(QSqlDatabase initialWordDB, QVariant initialWor
   emit accept();
   return true;
 }
+
+
+// here we understand if we can connect our word with anything -- we can't if not all the databases are opened now
+bool AddConnection::checkConnectedDatabases() {
+
+  QModelIndex index = ui->tableView->currentIndex();
+  this->selectedWordid = index.sibling(index.row(),0).data();
+  qDebug() << this->selectedWordid;
+
+  this->selectedTag = index.sibling(index.row(),0).data();
+  qDebug() << this->selectedTag;
+
+  this->connectionNamesForDicts.clear();
+
+  QSqlQuery getConnectedDbList(this->acceptorWordDB);
+  getConnectedDbList.prepare("SELECT \
+                             dict_attributes.dict_identificator \
+                             FROM \
+                             dict_attributes \
+                             JOIN etimology ON (dict_attributes.id = etimology.dictid) \
+                             JOIN dictionary ON (etimology.wordid = dictionary.id AND dictionary.etimology_tag = :tag) \
+                             GROUP BY dict_attributes.id;");
+  getConnectedDbList.bindValue(":tag", this->selectedTag);
+  if (!getConnectedDbList.exec()) {
+      errorMsg("Не получается получить список связанных со словом словарей. Вы можете просмотреть связи, но не можете добавлять новые.");
+      ui->acceptConnection->setDisabled(true);
+      return false;
+    }
+  QSet<QString> openedDbIdentifiers;
+  foreach (const DictGlobalAttributes &item, *this->dictsOpened) {
+      openedDbIdentifiers.insert(item.getDbId());
+      qDebug() << "opened db list " << item.getDbId();
+    }
+
+  QSet<QString> connectedDbIdentifiers;
+  while (getConnectedDbList.next()) {
+      connectedDbIdentifiers.insert(getConnectedDbList.value("dict_identificator").toString());
+      qDebug() << "connected db list " << getConnectedDbList.value("dict_identificator").toString();
+    }
+
+  if (!openedDbIdentifiers.contains(connectedDbIdentifiers)) {
+      connectedDbIdentifiers.subtract(openedDbIdentifiers);
+      QString missingList;
+      foreach (const QString &item, connectedDbIdentifiers) {
+          missingList += item + " ";
+        }
+
+      errorMsg("Не все словари, с которыми связано слово, открыты. Вы можете просмотреть связи слова со словами из открытых словарей, но не можете добавить новые. Список недостающих словарей (это их идентификаторы):" + missingList);
+      ui->acceptConnection->setDisabled(true);
+      return false;
+    }
+  connectedDbIdentifiers.intersect(openedDbIdentifiers);
+  foreach (const DictGlobalAttributes &dict, *this->dictsOpened) {
+      if (connectedDbIdentifiers.contains(dict.getDbId())) {
+          this->connectionNamesForDicts.insert(dict.getFilename());
+        }
+    }
+
+  ui->acceptConnection->setEnabled(true);
+  return true;
+}
+
+bool AddConnection::prepareForConnection () {
+  wordsToConnectWith.clear();
+  foreach (const QString &dbitem, this->connectionNamesForDicts) {
+      QSqlQuery findWordsByTag(QSqlDatabase::database(dbitem));
+      findWordsByTag.prepare("SELECT dictionary.id FROM dictionary WHERE etimology_tag=:tag;");
+      findWordsByTag.bindValue(":tag", this->tag);
+      if (!findWordsByTag.exec()) {
+          errorMsg("Похоже, консистентность словарей нарушена. Пришлите все связанные с этим словом словари, слово, которое вы пытаетесь связать и слово с которым вы пытаетесь его связать разработчику и не трогайте ничего, пока он не ответит. Или у вас ломается жёсткий диск, но это куда менее вероятно.");
+          return false;
+        }
+      while (findWordsByTag.next()) {
+          wordsToConnectWith.append(QPair<QString, QVariant>(dbitem,findWordsByTag.value("id")));
+        }
+    }
+  wordsToConnectWith.append(QPair<QString, QVariant>(acceptorWordDB.connectionName(),this->selectedWordid));
+  return true;
+}
+
+
+
 
 AddConnection::~AddConnection()
 {

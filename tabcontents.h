@@ -57,6 +57,7 @@ public slots:
   bool checkPraatRightDescription();
   bool submitRightPraat();
   bool sendToPraat();
+  bool updateModel();
 
 protected:
   Ui::TabContents *ui;

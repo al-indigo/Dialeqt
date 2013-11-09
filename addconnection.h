@@ -25,6 +25,10 @@ class AddConnection : public QDialog
 //  QSqlQueryModel * model;
   QSqlTableModel * model;
   QList<QPair<QString, QVariant>> wordsToConnect;
+  QList<QPair<QString, QVariant>> wordsToConnectWith;
+  QSet<QString> connectionNamesForDicts;
+  QVariant selectedTag;
+  QVariant selectedWordid;
   QString filter;
 
 public:
@@ -36,7 +40,9 @@ private slots:
   void modelSetup();
 private:
   Ui::addConnection *ui;
-  bool connectWords(QSqlDatabase initialWordDB, QVariant initialWordID);
+  bool connectWords(QSqlDatabase initialWordDB, QVariant initialWordID, QSqlDatabase updatedWordDB, QVariant updatedWordID);
+  bool checkConnectedDatabases();
+  bool prepareForConnection();
 
 };
 
