@@ -4,6 +4,9 @@
 #include <QDialog>
 #include <QSqlDatabase>
 #include <QSqlQueryModel>
+#include <QSqlTableModel>
+#include <QString>
+
 #include "dictglobalattributes.h"
 
 namespace Ui {
@@ -19,8 +22,10 @@ class AddConnection : public QDialog
 //  QSqlDatabase initialWordDB;
   QSqlDatabase acceptorWordDB;
   QSet<DictGlobalAttributes> * dictsOpened;
-  QSqlQueryModel * model;
+//  QSqlQueryModel * model;
+  QSqlTableModel * model;
   QList<QPair<QString, QVariant>> wordsToConnect;
+  QString filter;
 
 public:
   explicit AddConnection(QList<QPair<QString, QVariant>> _wordsToConnect, QVariant _etimology_tag, QSqlDatabase _acceptorWordDB, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent = 0);
@@ -28,9 +33,11 @@ public:
 
 private slots:
   bool cyclicConnector();
+  void modelSetup();
 private:
   Ui::addConnection *ui;
   bool connectWords(QSqlDatabase initialWordDB, QVariant initialWordID);
+
 };
 
 #endif // ADDCONNECTION_H

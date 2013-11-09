@@ -541,8 +541,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Легенда словаря
- и сказания</string>
+               <string>Тексты</string>
               </property>
              </widget>
             </item>

@@ -2,7 +2,7 @@ QT       += core gui sql webkitwidgets webkit multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Dialeqt
+TARGET = LingvoDoc
 TEMPLATE = app
 CONFIG += static
 

@@ -15,24 +15,62 @@ AddConnection::AddConnection(QList<QPair<QString, QVariant>> _wordsToConnect, QV
   ui(new Ui::addConnection)
 {
   ui->setupUi(this);
-  model = new QSqlQueryModel();
+
+/*  model = new QSqlQueryModel();
   model->setQuery("SELECT dictionary.id, \
                   dictionary.transcription, \
                   dictionary.translation \
                   FROM \
                   dictionary \
                   WHERE dictionary.etimology_tag is NULL;", acceptorWordDB);
-  model->setHeaderData(1, Qt::Horizontal, QObject::tr("Транскрипция"));
-  model->setHeaderData(2, Qt::Horizontal, QObject::tr("Перевод"));
-
-  ui->tableView->setModel(model);
-  ui->tableView->setColumnWidth(1, 100);
-  ui->tableView->setColumnWidth(2, 180);
-  ui->tableView->setColumnHidden(0, true);
+  */
+  model = new QSqlTableModel(this, acceptorWordDB);
+  modelSetup();
 
   connect(ui->acceptConnection, SIGNAL(clicked()), this, SLOT(cyclicConnector()));
   connect(ui->close, SIGNAL(clicked()), this, SLOT(close()));
+  connect(ui->dofilter, SIGNAL(clicked()), this, SLOT(modelSetup()));
 }
+
+void AddConnection::modelSetup() {
+  model->setTable("dictionary");
+  model->setEditStrategy(QSqlTableModel::OnFieldChange);
+  if (ui->hideconnected->isChecked()) {
+    if (ui->transcription->text().isEmpty()){
+      filter = QString("etimology_tag is NULL ");
+    } else {
+      filter = QString("etimology_tag is NULL AND transcription GLOB '") + ui->transcription->text().replace("'","''") + QString("*'");
+    }
+  } else {
+    if (ui->transcription->text().isEmpty()) {
+      filter = "";
+    } else {
+      filter = QString("transcription GLOB '") + ui->transcription->text().replace("'","''") + QString("*'");
+    }
+  }
+  model->setFilter(filter);
+
+  model->setHeaderData(1, Qt::Horizontal, QObject::tr("Слово"));
+  model->setHeaderData(3, Qt::Horizontal, QObject::tr("Транскрипция"));
+  model->setHeaderData(4, Qt::Horizontal, QObject::tr("Перевод"));
+
+  ui->tableView->setModel(model);
+  qDebug() << "Model set, filter is: " << filter << " ; last query is: " << getLastExecutedQuery(model->query());
+  ui->tableView->setSortingEnabled(true);
+  ui->tableView->horizontalHeader()->setSortIndicator(1, Qt::AscendingOrder);
+  ui->tableView->horizontalHeader()->setSortIndicator(2, Qt::AscendingOrder);
+  ui->tableView->setColumnWidth(1, 100);
+  ui->tableView->setColumnWidth(2, 180);
+
+  ui->tableView->setColumnHidden(0,true);
+  ui->tableView->setColumnHidden(2,true);
+  ui->tableView->setColumnHidden(5,true);
+  ui->tableView->setColumnHidden(6,true);
+  ui->tableView->setColumnHidden(7,true);
+  ui->tableView->setColumnHidden(8,true);
+
+}
+
 
 bool AddConnection::cyclicConnector() {
   for (QList<QPair<QString, QVariant>>::Iterator i = wordsToConnect.begin(); i!= wordsToConnect.end(); i++ ) {
