@@ -38,10 +38,11 @@ public:
 private slots:
   bool cyclicConnector();
   void modelSetup();
+  bool checkConnectedDatabases();
+
 private:
   Ui::addConnection *ui;
   bool connectWords(QSqlDatabase initialWordDB, QVariant initialWordID, QSqlDatabase updatedWordDB, QVariant updatedWordID);
-  bool checkConnectedDatabases();
   bool prepareForConnection();
 
 };

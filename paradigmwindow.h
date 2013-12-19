@@ -27,6 +27,7 @@ protected:
   QVariant wordIdSelected;
   QVariant wordSelected;
   QVariant transcriptionSelected;
+  QVariant transcriptionSelectedID;
   QVariant translationSelected;
 
   bool soundChosen;

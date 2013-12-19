@@ -26,6 +26,7 @@
 ParadigmWindow::ParadigmWindow(DictGlobalAttributes _dictAttrs, QVariant _wordIdSelected, QVariant _wordSelected, QVariant _transcriptionSelected, QVariant _translationSelected, QWidget *parent) :
   dictAttrs(_dictAttrs),
   wordIdSelected(_wordIdSelected),
+  transcriptionSelectedID(_wordIdSelected),
   wordSelected(_wordSelected),
   transcriptionSelected(_transcriptionSelected),
   translationSelected(_translationSelected),
@@ -321,7 +322,7 @@ void ParadigmWindow::initializeDictModel(QSqlTableModel *model) {
   model->setHeaderData(2, Qt::Horizontal, QObject::tr("Регулярная форма"));
   model->setHeaderData(3, Qt::Horizontal, QObject::tr("Транскрипция"));
   model->setHeaderData(4, Qt::Horizontal, QObject::tr("Перевод"));
-  model->setFilter(QString("is_a_regular_form = 0 AND regular_form = \"") + transcriptionSelected.toString() + QString("\""));
+  model->setFilter(QString("is_a_regular_form = 0 AND regular_form = \"") + transcriptionSelectedID.toString() + QString("\""));
   qDebug() << model->query().lastQuery();
   model->select();
   qDebug() << model->query().lastQuery();
@@ -491,7 +492,7 @@ bool ParadigmWindow::submitWord()
 
   QSqlRecord record = dictModel->record();
   record.setValue("word", entry.getWord());
-  record.setValue("regular_form" , transcriptionSelected);
+  record.setValue("regular_form" , transcriptionSelectedID);
   record.setValue("transcription" , entry.getTranscription());
   record.setValue("translation", entry.getTranslation());
   record.setValue("is_a_regular_form" , false);

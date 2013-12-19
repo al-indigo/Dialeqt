@@ -654,7 +654,7 @@ bool TabContents::submitWord()
 
   QSqlRecord record = dictModel->record();
   record.setValue("word", entry.getWord());
-  record.setValue("regular_form" , entry.getTranscription());
+//  record.setValue("regular_form" , entry.getTranscription());
   record.setValue("transcription" , entry.getTranscription());
   record.setValue("translation", entry.getTranslation());
   record.setValue("is_a_regular_form" , true);

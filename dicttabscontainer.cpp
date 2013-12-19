@@ -7,6 +7,7 @@
 #include "tabcontents.h"
 #include "customqhash.h"
 #include "customquerydiagnostics.h"
+#include "utils.h"
 
 DictTabsContainer::DictTabsContainer(QWidget *parent) :
   QTabWidget(parent)
@@ -50,6 +51,7 @@ bool DictTabsContainer::openDictTabInitial(DictGlobalAttributes & dictAttrs, con
   if (conn.isValid()) {
       qDebug() << "Opened the dict, conn is valid";
       qDebug() << "That means that dict is already opened, we should move to the tab where the dict is";
+      errorMsg("Словарь уже открыт.");
       return false;
   } else {
       qDebug() << "Dict connection doesn't exist yet', opening";
@@ -69,6 +71,14 @@ bool DictTabsContainer::openDictTabInitial(DictGlobalAttributes & dictAttrs, con
                   qDebug() << query.value("dict_classification_tags").toString();
                   qDebug() << query.value("dict_description").toString();
                   qDebug() << query.value("dialeqt_version").toString();
+
+                  /* version check */
+                  if (query.value("dialeqt_version").toInt() < 3 ) {
+                      errorMsg("В этой версии программы сменилась схема устройства базы данных словаря: вам необходимо прислать словарь на al@somestuff.ru для преобразования в новый формат (извините). Это обязательно необходимо сделать, в предыдущих версиях программы могла теряться информация о парадигмах.");
+                      conn.close();
+                      QSqlDatabase::removeDatabase(filename);
+                      return false;
+                  }
 
                   QString dictname = query.value("dict_name").toString();
                   QString author = query.value("dict_author").toString();
@@ -105,6 +115,7 @@ bool DictTabsContainer::openDictTabInitial(DictGlobalAttributes & dictAttrs, con
               qDebug() << "Query to db failed; maybe it's not a dictionary";
               qDebug() << "Query was the following: " << getLastExecutedQuery(query);
               qDebug() << "Error: " << query.lastError();
+              errorMsg("Проверьте, пожалуйста, что вы открываете именно файл словаря, а не какой-то другой. Если это действительно файл словаря, то возможен один из трех вариантов: \n 1) Ошибка в программе \n 2) Файл словаря испорчен \n 3) Ваш жесткий диск капризничает или умирает \n Во всех трёх случаях лучше написать на почту al@somestuff.ru и прислать файл словаря, чтобы я понял, в чем может быть дело.");
               return false;
             }
           return true;

@@ -33,6 +33,7 @@ private slots:
   bool openDbAndAddConnection();
 private:
   Ui::EtimologyWindow *ui;
+  void setupModel();
   bool checkConnectedDatabases();
   bool prepareForConnection();
 };

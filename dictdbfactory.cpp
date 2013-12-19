@@ -57,7 +57,7 @@ bool DictDbFactory::initDb(DictGlobalAttributes &attrs, const QSqlDatabase &db)
               "dict_coauthors           TEXT, "
               "dict_classification_tags TEXT, "
               "dict_description         TEXT, "
-              "dialeqt_version          INTEGER DEFAULT ( 2 ) "
+              "dialeqt_version          INTEGER DEFAULT ( 3 ) "
           ");"
           )) {
         qDebug() << "Failed to create dict_attributes table";
@@ -75,7 +75,7 @@ bool DictDbFactory::initDb(DictGlobalAttributes &attrs, const QSqlDatabase &db)
                                          "NOT NULL "
                                          "UNIQUE, "
               "word               TEXT, "
-              "regular_form       TEXT, "
+              "regular_form       INTEGER, "
               "transcription      TEXT, "
               "translation        TEXT, "
               "is_a_regular_form  BOOL, "

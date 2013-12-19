@@ -20,15 +20,27 @@ EtimologyWindow::EtimologyWindow(QVariant _wordid, QVariant _word_transcription,
   ui->setupUi(this);
   model = new QSqlQueryModel();
   wordsmodel = new QSqlQueryModel();
-/*  this->wordsModelQuery = QString("SELECT dict_attributes.id, \
-                          dict_attributes.dict_name, \
-                          dict_attributes.dict_classification_tags, \
-                          dict_attributes.dict_identificator \
-                          FROM \
-                          dict_attributes \
-                          JOIN etimology ON (dict_attributes.id = etimology.dictid) \
-                          JOIN dictionary ON (etimology.wordid = dictionary.id AND dictionary.etimology_tag = ") + QString("'") + tag.toString() + QString("') ") + QString("GROUP BY dict_attributes.id;");
-                          */
+
+  setupModel();
+  ui->treeView->setColumnHidden(0,true);
+  ui->treeView->setColumnHidden(3,true);
+
+  ui->treeView->setColumnWidth(1, 350);
+  ui->treeView->setColumnWidth(2, 150);
+
+  foreach (const DictGlobalAttributes &item, *this->dictsOpened) {
+      ui->dictsDropdown->addItem(item.getDictname(), item.getFilename());
+    }
+
+  connect(ui->treeView , SIGNAL(clicked(QModelIndex)), this, SLOT(findWords()));
+  connect(ui->treeView, SIGNAL(activated(QModelIndex)), this, SLOT(findWords()));
+  connect(ui->addConnectionButton, SIGNAL(clicked()), this, SLOT(openDbAndAddConnection()));
+  connect(ui->close, SIGNAL(clicked()), this, SLOT(close()));
+
+  this->checkConnectedDatabases();
+}
+
+void EtimologyWindow::setupModel() {
   QSqlQuery connected_dicts(db);
   connected_dicts.prepare("SELECT dict_attributes.id, \
                           dict_attributes.dict_name, \
@@ -48,22 +60,7 @@ EtimologyWindow::EtimologyWindow(QVariant _wordid, QVariant _word_transcription,
   model->setHeaderData(2, Qt::Horizontal, QObject::tr("К каким группам относится словарь"));
 
   ui->treeView->setModel(model);
-  ui->treeView->setColumnHidden(0,true);
-  ui->treeView->setColumnHidden(3,true);
 
-  ui->treeView->setColumnWidth(1, 350);
-  ui->treeView->setColumnWidth(2, 150);
-
-  foreach (const DictGlobalAttributes &item, *this->dictsOpened) {
-      ui->dictsDropdown->addItem(item.getDictname(), item.getFilename());
-    }
-
-  connect(ui->treeView , SIGNAL(clicked(QModelIndex)), this, SLOT(findWords()));
-  connect(ui->treeView, SIGNAL(activated(QModelIndex)), this, SLOT(findWords()));
-  connect(ui->addConnectionButton, SIGNAL(clicked()), this, SLOT(openDbAndAddConnection()));
-  connect(ui->close, SIGNAL(clicked()), this, SLOT(close()));
-
-  this->checkConnectedDatabases();
 }
 
 // here we understand if we can connect our word with anything -- we can't if not all the databases are opened now
@@ -146,7 +143,8 @@ bool EtimologyWindow::openDbAndAddConnection() {
 
   this->checkConnectedDatabases(); //it's needed for consistency check
 
-  model->setQuery(this->wordsModelQuery, db);
+//  model->setQuery(this->wordsModelQuery, db);
+  this->setupModel();
 
   return true;
 }
