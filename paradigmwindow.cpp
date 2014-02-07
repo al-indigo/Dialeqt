@@ -584,8 +584,9 @@ bool ParadigmWindow::submitWord()
 //  dictModel->database().commit();
   qDebug() << "Executed the query on commit: " << dictModel->query().lastQuery();
   dictModel->select();
-
-
+  while (dictModel->canFetchMore()) {
+      dictModel->fetchMore();
+  }
 
   this->clearForms();
   return true;

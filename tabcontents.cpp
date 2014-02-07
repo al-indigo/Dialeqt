@@ -377,7 +377,7 @@ bool TabContents::showEtimology() {
 
   EtimologyWindow etimology(wordid, transcription, tag, db, dictsOpened, this);
   etimology.exec();
-  this->dictModel->select();
+  this->updateModel();
   ui->dictionaryTable->setCurrentIndex(index);
   return true;
 }
@@ -385,6 +385,9 @@ bool TabContents::showEtimology() {
 bool TabContents::updateModel() {
   QModelIndex index = ui->dictionaryTable->currentIndex();
   this->dictModel->select();
+  while (this->dictModel->canFetchMore()) {
+      this->dictModel->fetchMore();
+  }
   ui->dictionaryTable->setCurrentIndex(index);
   qDebug() << "Model has been updated";
   return true;
@@ -745,8 +748,8 @@ bool TabContents::submitWord()
 
 //  dictModel->database().commit();
   qDebug() << "Executed the query on commit: " << dictModel->query().lastQuery();
-  dictModel->select();
 
+  this->updateModel();
 
 
   this->clearForms();
