@@ -56,3 +56,8 @@ FORMS    += dialeqt.ui \
     etimologywindow.ui \
     playwindow.ui \
     addconnection.ui
+
+RESOURCES += \
+    resources.qrc
+
+RC_ICONS = icons\ld.ico
