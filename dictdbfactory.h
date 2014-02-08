@@ -15,7 +15,6 @@ class DictDbFactory : public QObject
 {
     Q_OBJECT
     const QString & sqlDriver;
-    QList <QString> openedConnections;
 public:
     explicit DictDbFactory(QObject *parent = 0);
 

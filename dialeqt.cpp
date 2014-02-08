@@ -10,6 +10,7 @@ Dialeqt::Dialeqt(QWidget *parent) :
     ui(new Ui::Dialeqt)
 {
     ui->setupUi(this);
+
 }
 
 Dialeqt::~Dialeqt()

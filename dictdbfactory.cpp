@@ -26,7 +26,6 @@ QSqlDatabase DictDbFactory::createConnection(const QString &connectionName) {
     if (!db.isValid()) {
         qDebug() << "Connection to database is invalid " << db.connectOptions() << db.databaseName() << db.isOpenError();
     }
-    openedConnections.append(connectionName);
 //    db.driver()->hasFeature(QSqlDriver::foreign)
     return db;
 }

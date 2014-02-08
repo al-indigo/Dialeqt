@@ -109,6 +109,7 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QSet<DictGlobalAttribu
   ui->deleteButton->setDisabled(true);
 }
 
+
 bool TabContents::sendToPraat() {
   QItemSelectionModel *select = ui->praatList->selectionModel();
 
@@ -468,11 +469,27 @@ bool TabContents::showTales() {
 }
 
 
+DictGlobalAttributes & TabContents::getDictAttrs() {
+  return dictAttrs;
+}
+
+
 TabContents::~TabContents()
 {
+  qDebug() << "I'm in tab destructor";
   delete dictModel;
   delete soundsModel;
   delete praatModel;
+
+  QString connname = db.connectionName();
+  QSqlDatabase tempconnection = QSqlDatabase::database(connname, false);
+
+  if (tempconnection.isOpen()) {
+    tempconnection.commit();
+    tempconnection.close();
+  }
+
+  QSqlDatabase::removeDatabase(connname);
   delete ui;
 }
 

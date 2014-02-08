@@ -40,6 +40,8 @@ public:
   explicit TabContents(DictGlobalAttributes _dictAttrs,  QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent = 0);
   ~TabContents();
 
+  DictGlobalAttributes & getDictAttrs();
+
 signals:
 
 public slots:

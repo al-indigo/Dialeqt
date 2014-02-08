@@ -54,7 +54,7 @@
      <x>0</x>
      <y>0</y>
      <width>1000</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -236,5 +236,22 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>action_9</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>Dialeqt</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>499</x>
+     <y>269</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
