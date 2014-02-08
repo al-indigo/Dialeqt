@@ -60,6 +60,10 @@ public slots:
   bool submitRightPraat();
   bool sendToPraat();
   bool updateModel();
+  virtual bool showFiles(bool isShown=true);
+  virtual bool showForms(bool isShown=true);
+  virtual bool showActionsOnDict(bool isShown=true);
+  virtual bool showActionsOnWord(bool isShown=true);
 
 protected:
   Ui::TabContents *ui;

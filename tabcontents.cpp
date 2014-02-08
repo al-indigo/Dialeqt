@@ -101,12 +101,56 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QSet<DictGlobalAttribu
   connect(ui->sendToPraat, SIGNAL(clicked()), this, SLOT(sendToPraat()));
   connect(parent, SIGNAL(currentChanged(int)), this, SLOT(updateModel()));
 
+  ui->showFilesButton->setHidden(true);
+  connect(ui->filesBox, SIGNAL(toggled(bool)), this, SLOT(showFiles(bool)));
+  connect(ui->showFilesButton, SIGNAL(clicked()), this, SLOT(showFiles()));
+
+  ui->showFormsButton->setHidden(true);
+  connect(ui->groupBox, SIGNAL(toggled(bool)), this, SLOT(showForms(bool)));
+  connect(ui->showFormsButton, SIGNAL(clicked()), this, SLOT(showForms()));
+
+  ui->showActionsOnDict->setHidden(true);
+  connect(ui->groupBoxActionsOnDict, SIGNAL(toggled(bool)), this, SLOT(showActionsOnDict(bool)));
+  connect(ui->showActionsOnDict, SIGNAL(clicked()), this, SLOT(showActionsOnDict()));
+
+  ui->showActionsOnWord->setHidden(true);
+  connect(ui->groupBoxActionsOnWord, SIGNAL(toggled(bool)), this, SLOT(showActionsOnWord(bool)));
+  connect(ui->showActionsOnWord, SIGNAL(clicked()), this, SLOT(showActionsOnWord()));
+
 //  ui->paradigmButton->setDisabled(true);
 //  ui->sendToPraat->setDisabled(true);
   ui->phonologyButton->setDisabled(true);
 //  ui->legendButton->setDisabled(true);
 //  ui->talesButton->setDisabled(true);
   ui->deleteButton->setDisabled(true);
+}
+
+bool TabContents::showFiles(bool isShown) {
+  ui->filesBox->setHidden(!isShown);
+  ui->filesBox->setChecked(isShown);
+  ui->showFilesButton->setHidden(isShown);
+  return isShown;
+}
+
+bool TabContents::showForms(bool isShown) {
+  ui->groupBox->setHidden(!isShown);
+  ui->groupBox->setChecked(isShown);
+  ui->showFormsButton->setHidden(isShown);
+  return isShown;
+}
+
+bool TabContents::showActionsOnDict(bool isShown) {
+  ui->groupBoxActionsOnDict->setHidden(!isShown);
+  ui->groupBoxActionsOnDict->setChecked(isShown);
+  ui->showActionsOnDict->setHidden(isShown);
+  return isShown;
+}
+
+bool TabContents::showActionsOnWord(bool isShown) {
+  ui->groupBoxActionsOnWord->setHidden(!isShown);
+  ui->groupBoxActionsOnWord->setChecked(isShown);
+  ui->showActionsOnWord->setHidden(isShown);
+  return isShown;
 }
 
 
@@ -780,7 +824,7 @@ void TabContents::clearForms() {
   ui->soundDescription->clear();
   ui->praatDescription->clear();
   this->praatChosen = false;
-  ui->praatButton->setText("Выберите файл разметки");
+  ui->praatButton->setText("Файл разметки Praat");
   this->soundChosen = false;
   ui->soundButton->setText("Выберите звуковой файл");
   this->soundFilename.clear();
