@@ -5,6 +5,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlRelationalTableModel>
+#include <QAction>
 #include "dictglobalattributes.h"
 #include "dictentry.h"
 #include "editablesqlmodel.h"
@@ -34,8 +35,9 @@ protected:
   QString praatRightFormFilenameMarkup;
   QString praatRightFormFilenameSound;
   QString praatRightFormDescription;
+  QAction* copyAction;
 
-   QSet<DictGlobalAttributes> * dictsOpened;
+  QSet<DictGlobalAttributes> * dictsOpened;
 public:
   explicit TabContents(DictGlobalAttributes _dictAttrs,  QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent = 0);
   ~TabContents();
@@ -64,6 +66,7 @@ public slots:
   virtual bool showForms(bool isShown=true);
   virtual bool showActionsOnDict(bool isShown=true);
   virtual bool showActionsOnWord(bool isShown=true);
+  bool copySelectedToClipboard();
 
 protected:
   Ui::TabContents *ui;

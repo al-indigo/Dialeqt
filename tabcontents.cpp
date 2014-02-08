@@ -10,6 +10,9 @@
 #include <QFileDialog>
 #include <QDateTime>
 #include <QProcess>
+#include <QApplication>
+#include <QClipboard>
+#include <QAction>
 
 #include "tabcontents.h"
 #include "customquerydiagnostics.h"
@@ -117,12 +120,50 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QSet<DictGlobalAttribu
   connect(ui->groupBoxActionsOnWord, SIGNAL(toggled(bool)), this, SLOT(showActionsOnWord(bool)));
   connect(ui->showActionsOnWord, SIGNAL(clicked()), this, SLOT(showActionsOnWord()));
 
+//  connect(ui->dictionaryTable, SIGNAL(clicked(QModelIndex)), this, SLOT(copySelectedToClipboard()));
+//  connect(ui->dictionaryTable, SIGNAL(activated(QModelIndex)), this, SLOT(copySelectedToClipboard()));
+
+  copyAction = new QAction(this);
+  copyAction->setShortcut(tr("Ctrl+C"));
+  connect(copyAction, SIGNAL(triggered()), this, SLOT(copySelectedToClipboard()));
+  ui->dictionaryTable->addAction(copyAction);
+
 //  ui->paradigmButton->setDisabled(true);
 //  ui->sendToPraat->setDisabled(true);
   ui->phonologyButton->setDisabled(true);
 //  ui->legendButton->setDisabled(true);
 //  ui->talesButton->setDisabled(true);
   ui->deleteButton->setDisabled(true);
+}
+
+bool TabContents::copySelectedToClipboard() {
+  QAbstractItemModel * model = ui->dictionaryTable->model();
+  QItemSelectionModel * selection = ui->dictionaryTable->selectionModel();
+  QModelIndexList indexes = selection->selectedIndexes();
+
+  QString selected_text;
+  // You need a pair of indexes to find the row changes
+  QModelIndex previous = indexes.first();
+  indexes.removeFirst();
+  QString last_element;
+
+  foreach(const QModelIndex &current, indexes) {
+      if (current.column() == 2) continue;
+      QString text = model->data(previous).toString();
+      selected_text.append(text);
+      if (current.row() != previous.row()) {
+          selected_text.append('\n');
+      } else {
+        selected_text.append('\t');
+      }
+      previous = current;
+      last_element = model->data(current).toString();
+  }
+  selected_text.append(last_element + "\n");
+
+//  QApplication.clipboard()->setText(selected_text);
+  QApplication::clipboard()->setText(selected_text);
+  return true;
 }
 
 bool TabContents::showFiles(bool isShown) {
@@ -521,6 +562,7 @@ DictGlobalAttributes & TabContents::getDictAttrs() {
 TabContents::~TabContents()
 {
   qDebug() << "I'm in tab destructor";
+  delete copyAction;
   delete dictModel;
   delete soundsModel;
   delete praatModel;
