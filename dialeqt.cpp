@@ -39,8 +39,10 @@ void Dialeqt::on_openDictMenuButton_triggered()
 {
   QString dictfilename = QFileDialog::getOpenFileName(this, tr("Открыть словарь"), "", tr("Файлы словарей (*.sqlite)"));
   qDebug() << dictfilename;
-  DictGlobalAttributes dictAttrs;
-  if (!ui->dictsTabsContainerWidget->openDictTabInitial(dictAttrs, dictfilename)) {
-      qDebug() << "cannot create dictionary tab";
-    }
+  if (dictfilename.size() > 0) {
+    DictGlobalAttributes dictAttrs;
+    if (!ui->dictsTabsContainerWidget->openDictTabInitial(dictAttrs, dictfilename)) {
+        qDebug() << "cannot create dictionary tab";
+      }
+  }
 }
