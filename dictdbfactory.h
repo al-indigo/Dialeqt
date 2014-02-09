@@ -14,7 +14,6 @@
 class DictDbFactory : public QObject
 {
     Q_OBJECT
-    const QString & sqlDriver;
 public:
     explicit DictDbFactory(QObject *parent = 0);
 

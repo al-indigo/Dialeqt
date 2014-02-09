@@ -34,7 +34,8 @@ bool DictTabsContainer::createDictTabInitial(DictGlobalAttributes dictAttrs)
 
 
 //      this->addTab(view, dictAttrs.getFilename());
-      this->addTab(new TabContents(dictAttrs, &(this->dictsOpened), this), dictAttrs.getDictname());
+      int tabnumber = this->addTab(new TabContents(dictAttrs, &(this->dictsOpened), this), dictAttrs.getDictname());
+      this->setCurrentIndex(tabnumber);
       this->dictsOpened.insert(dictAttrs);
 
       return true;
@@ -108,7 +109,8 @@ bool DictTabsContainer::openDictTabInitial(DictGlobalAttributes & dictAttrs, con
                   dictAttrs = tmpDictAttrs;
                   qDebug() << "Opened a dictionary and constructed the following attributes";
                   dictAttrs.debugPrint();
-                  this->addTab(new TabContents(dictAttrs, &(this->dictsOpened), this), dictAttrs.getDictname());
+                  int tabnumber = this->addTab(new TabContents(dictAttrs, &(this->dictsOpened), this), dictAttrs.getDictname());
+                  this->setCurrentIndex(tabnumber);
                   this->dictsOpened.insert(dictAttrs);
                 }
             } else {

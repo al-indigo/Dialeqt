@@ -9,9 +9,8 @@
 #include "customquerydiagnostics.h"
 
 DictDbFactory::DictDbFactory(QObject *parent) :
-    QObject(parent), sqlDriver("QSQLITE")
-{
-}
+    QObject(parent) {}
+
 
 QSqlDatabase DictDbFactory::createConnection(const QString &connectionName) {
     QDir dictsDir = QDir();
@@ -27,6 +26,16 @@ QSqlDatabase DictDbFactory::createConnection(const QString &connectionName) {
         qDebug() << "Connection to database is invalid " << db.connectOptions() << db.databaseName() << db.isOpenError();
     }
 //    db.driver()->hasFeature(QSqlDriver::foreign)
+    qDebug() << "Sql driver supports Transactions:" << db.driver()->hasFeature(QSqlDriver::Transactions);
+    qDebug() << "Sql driver supports PreparedQueries:" << db.driver()->hasFeature(QSqlDriver::PreparedQueries);
+    qDebug() << "Sql driver supports SimpleLocking:" << db.driver()->hasFeature(QSqlDriver::SimpleLocking);
+    qDebug() << "Sql driver supports EventNotifications:" << db.driver()->hasFeature(QSqlDriver::EventNotifications);
+    qDebug() << "Sql driver supports FinishQuery:" << db.driver()->hasFeature(QSqlDriver::FinishQuery);
+    qDebug() << "Sql driver supports MultipleResultSets:" << db.driver()->hasFeature(QSqlDriver::MultipleResultSets);
+    qDebug() << "Sql driver supports CancelQuery:" << db.driver()->hasFeature(QSqlDriver::CancelQuery);
+    qDebug() << "Sql driver supports Unicode:" << db.driver()->hasFeature(QSqlDriver::Unicode);
+    qDebug() << "Sql driver supports LastInsertId:" << db.driver()->hasFeature(QSqlDriver::LastInsertId);
+    qDebug() << "Sql driver supports BatchOperations:" << db.driver()->hasFeature(QSqlDriver::BatchOperations);
     return db;
 }
 

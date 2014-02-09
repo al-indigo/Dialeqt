@@ -35,7 +35,8 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QSet<DictGlobalAttribu
   soundChosen(false),
   praatChosen(false),
   praatRightChosen(false),
-  dictsOpened(_dictsOpened)
+  dictsOpened(_dictsOpened),
+  currentResult(NULL)
 {
   ui->setupUi(this);
 
@@ -97,6 +98,7 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QSet<DictGlobalAttribu
 
   connect(ui->dictionaryTable , SIGNAL(clicked(QModelIndex)), this, SLOT(filterBlobs()));
   connect(ui->dictionaryTable, SIGNAL(activated(QModelIndex)), this, SLOT(filterBlobs()));
+  connect(this, SIGNAL(search_activated()), this, SLOT(filterBlobs()));
 
   connect(ui->choosePraat, SIGNAL(clicked()), this, SLOT(choosePraatRight()));
   connect(ui->praatDescription_2, SIGNAL(textChanged(QString)), this, SLOT(checkPraatRightDescription()));
@@ -134,6 +136,10 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QSet<DictGlobalAttribu
 //  ui->legendButton->setDisabled(true);
 //  ui->talesButton->setDisabled(true);
   ui->deleteButton->setDisabled(true);
+
+  connect(ui->simpleSearchButton, SIGNAL(clicked()), this, SLOT(simpleSearch()));
+  connect(ui->simpleSearchNext, SIGNAL(clicked()), this, SLOT(simpleSearchNext()));
+  connect(ui->simpleSearchPrevious, SIGNAL(clicked()), this, SLOT(simpleSearchPrevious()));
 }
 
 bool TabContents::copySelectedToClipboard() {
@@ -164,6 +170,82 @@ bool TabContents::copySelectedToClipboard() {
 //  QApplication.clipboard()->setText(selected_text);
   QApplication::clipboard()->setText(selected_text);
   return true;
+}
+
+bool TabContents::simpleSearch() {
+  lastSearchResults.clear();
+  if (currentResult != NULL) {
+      delete currentResult;
+    }
+
+  lastSearchResults.append(this->dictModel->match(this->dictModel->index(0, 1), Qt::DisplayRole, ui->simpleSearchInput->displayText(), -1, Qt::MatchContains));
+  lastSearchResults.append(this->dictModel->match(this->dictModel->index(0, 3), Qt::DisplayRole, ui->simpleSearchInput->displayText(), -1, Qt::MatchContains));
+  lastSearchResults.append(this->dictModel->match(this->dictModel->index(0, 4), Qt::DisplayRole, ui->simpleSearchInput->displayText(), -1, Qt::MatchContains));
+
+  foreach (const QModelIndex & item, lastSearchResults) {
+      qDebug() << item.data() << "\n";
+    }
+
+  currentResult = new QListIterator<QModelIndex>(lastSearchResults);
+
+  if (lastSearchResults.empty()) {
+      errorMsg("Ничего не найдено!");
+      return false;
+    }
+
+  ui->dictionaryTable->clearSelection();
+  ui->dictionaryTable->setCurrentIndex(lastSearchResults.first());
+  ui->dictionaryTable->setFocus();
+  emit search_activated();
+
+  currentResult->toFront();
+  if (currentResult->hasNext()) currentResult->next();
+
+  return true;
+
+}
+
+bool TabContents::simpleSearchNext() {
+  if (lastSearchResults.empty()) {
+      return false;
+    }
+  if (!currentResult->hasNext()) {
+      currentResult->toFront();
+    }
+
+  if (currentResult->hasNext()) {
+      ui->dictionaryTable->clearSelection();
+      ui->dictionaryTable->setCurrentIndex(currentResult->peekNext());
+      currentResult->next();
+      qDebug() << ui->dictionaryTable->currentIndex().row();
+      ui->dictionaryTable->setFocus();
+      emit search_activated();
+      return true;
+    } else {
+      return false;
+    }
+
+}
+
+bool TabContents::simpleSearchPrevious() {
+  if (lastSearchResults.empty()) {
+      return false;
+    }
+  if (!currentResult->hasPrevious()) {
+      currentResult->toBack();
+    }
+
+  if (currentResult->hasPrevious()) {
+      ui->dictionaryTable->clearSelection();
+      ui->dictionaryTable->setCurrentIndex(currentResult->peekPrevious());
+      currentResult->previous();
+      qDebug() << ui->dictionaryTable->currentIndex().row();
+      ui->dictionaryTable->setFocus();
+      emit search_activated();
+      return true;
+    } else {
+      return false;
+    }
 }
 
 bool TabContents::showFiles(bool isShown) {

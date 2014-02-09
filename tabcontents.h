@@ -6,6 +6,7 @@
 #include <QSqlQuery>
 #include <QSqlRelationalTableModel>
 #include <QAction>
+#include <QModelIndex>
 #include "dictglobalattributes.h"
 #include "dictentry.h"
 #include "editablesqlmodel.h"
@@ -35,7 +36,11 @@ protected:
   QString praatRightFormFilenameMarkup;
   QString praatRightFormFilenameSound;
   QString praatRightFormDescription;
+
   QAction* copyAction;
+
+  QModelIndexList lastSearchResults;
+  QListIterator <QModelIndex> * currentResult;
 
   QSet<DictGlobalAttributes> * dictsOpened;
 public:
@@ -45,6 +50,7 @@ public:
   DictGlobalAttributes & getDictAttrs();
 
 signals:
+  void search_activated();
 
 public slots:
   bool submitWord();
@@ -67,6 +73,9 @@ public slots:
   virtual bool showActionsOnDict(bool isShown=true);
   virtual bool showActionsOnWord(bool isShown=true);
   bool copySelectedToClipboard();
+  bool simpleSearch();
+  bool simpleSearchNext();
+  bool simpleSearchPrevious();
 
 protected:
   Ui::TabContents *ui;

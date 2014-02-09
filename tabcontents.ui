@@ -29,6 +29,72 @@
    <property name="leftMargin">
     <number>6</number>
    </property>
+   <item row="0" column="2">
+    <widget class="QPushButton" name="showFilesButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>20</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>П
+о
+к
+а
+з
+а
+т
+ь
+ 
+п
+а
+н
+е
+л
+ь
+ 
+ф
+а
+й
+л
+о
+в</string>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="default">
+      <bool>false</bool>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <widget class="QGroupBox" name="dictBox">
      <property name="minimumSize">
@@ -76,7 +142,7 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="5" column="0">
        <widget class="QGroupBox" name="groupBoxActions">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -655,6 +721,40 @@
         </layout>
        </widget>
       </item>
+      <item row="4" column="0">
+       <layout class="QHBoxLayout" name="simpleSearchBox">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLineEdit" name="simpleSearchInput"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="simpleSearchButton">
+          <property name="text">
+           <string>Искать!</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="simpleSearchNext">
+          <property name="text">
+           <string>Следующий результат</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="simpleSearchPrevious">
+          <property name="text">
+           <string>Предыдущий</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
      </layout>
     </widget>
    </item>
@@ -830,72 +930,6 @@
        </widget>
       </item>
      </layout>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QPushButton" name="showFilesButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>20</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>20</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-       <weight>50</weight>
-       <italic>false</italic>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>П
-о
-к
-а
-з
-а
-т
-ь
- 
-п
-а
-н
-е
-л
-ь
- 
-ф
-а
-й
-л
-о
-в</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="default">
-      <bool>false</bool>
-     </property>
-     <property name="flat">
-      <bool>false</bool>
-     </property>
     </widget>
    </item>
   </layout>

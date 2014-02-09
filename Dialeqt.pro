@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     editablesqlmodel.cpp \
     playlistmodel.cpp \
     utils.cpp \
-    addconnection.cpp
+    addconnection.cpp \
+    simplesearch.cpp
 
 HEADERS  += dialeqt.h \
     dialogcreatenewdictionary.h \
@@ -44,7 +45,8 @@ HEADERS  += dialeqt.h \
     editablesqlmodel.h \
     playlistmodel.h \
     utils.h \
-    addconnection.h
+    addconnection.h \
+    simplesearch.h
 
 FORMS    += dialeqt.ui \
     dialogcreatenewdictionary.ui \
@@ -55,7 +57,8 @@ FORMS    += dialeqt.ui \
     paradigmwindow.ui \
     etimologywindow.ui \
     playwindow.ui \
-    addconnection.ui
+    addconnection.ui \
+    simplesearch.ui
 
 RESOURCES += \
     resources.qrc
