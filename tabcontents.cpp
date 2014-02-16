@@ -56,6 +56,7 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QSet<DictGlobalAttribu
   connect(ui->playButton , SIGNAL(clicked()), this, SLOT(showPlay()));
   connect(ui->phonologyButton , SIGNAL(clicked()), this, SLOT(showPhonology()));
   connect(ui->talesButton , SIGNAL(clicked()), this, SLOT(showTales()));
+  connect(ui->saveChangedPraatButton, SIGNAL(clicked()), this, SLOT(saveChangesInPraat()));
 
   dictModel = new QSqlTableModel(this, db);
   soundsModel = new QSqlTableModel(this, db);
@@ -329,6 +330,51 @@ bool TabContents::sendToPraat() {
   args.append(arg4);
   args.append(arg5);
   QProcess::execute("sendpraat.exe", args);
+  praatListToSave.append(QPair<QVariant, QString>(praatblobid, basename));
+  return true;
+}
+
+bool TabContents::saveChangesInPraat() {
+  QString temp_dir = QDir::tempPath();
+  QStringList args;
+  QString arg1 = QString("praat");
+  QString arg2 = QString("execute %1/scripts/saveallobjectstotemp.praat %2").arg(QDir::currentPath(), temp_dir);
+  qDebug() << "args for praatsend: " << arg1 << arg2;
+  args.append(arg1);
+  args.append(arg2);
+  QProcess::execute("sendpraat.exe", args);
+
+  for (int i=0; i < praatListToSave.size(); i++) {
+      QVariant blobid = praatListToSave[i].first;
+      QString basename = praatListToSave[i].second;
+
+      qDebug() << "temp is here: " << temp_dir;
+      QString markuppath = QDir::toNativeSeparators(temp_dir + QString("/") + basename + QString(".TextGrid"));
+      QString soundpath = QDir::toNativeSeparators(temp_dir + QString("/") + basename + QString(".wav"));
+
+      QByteArray praatMarkup;
+      QByteArray praatSound;
+      readAndCompress(markuppath, praatMarkup);
+      readAndCompress(soundpath, praatSound);
+
+      // here we need to push sound to blobs table, get id of blob and make a record in blobs_description_table
+      QSqlQuery praatBlobQuery(db);
+      praatBlobQuery.prepare("UPDATE blobs SET mainblob = :praatmarkupblob, secblob = :praatsoundblob WHERE id = :blobid");
+      praatBlobQuery.bindValue(":praatmarkupblob", praatMarkup);
+      praatBlobQuery.bindValue(":praatsoundblob", praatSound);
+      praatBlobQuery.bindValue(":blobid", blobid);
+
+      if (!praatBlobQuery.exec()) {
+          qDebug() << "Can't update praat blob";
+          qDebug() << "Query was the following: " << getLastExecutedQuery(praatBlobQuery);
+          qDebug() << db.lastError().text();
+          this->clearForms();
+          praatModel->select();
+          return false;
+      }
+  }
+  praatModel->select();
+  praatListToSave.clear();
   return true;
 }
 

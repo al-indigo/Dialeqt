@@ -39,6 +39,8 @@ protected:
 
   QAction* copyAction;
 
+  QList <QPair <QVariant, QString> > praatListToSave;
+
   QModelIndexList lastSearchResults;
   QListIterator <QModelIndex> * currentResult;
 
@@ -67,6 +69,7 @@ public slots:
   bool checkPraatRightDescription();
   bool submitRightPraat();
   bool sendToPraat();
+  bool saveChangesInPraat();
   bool updateModel();
   virtual bool showFiles(bool isShown=true);
   virtual bool showForms(bool isShown=true);
