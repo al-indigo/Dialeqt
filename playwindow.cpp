@@ -61,8 +61,6 @@ PlayWindow::PlayWindow(QStringList _playlist, QSqlDatabase _db, QString _destdir
   connect(ui->soundDescription, SIGNAL(textChanged(QString)), this, SLOT(checkDescription()));
   connect(ui->submit, SIGNAL(clicked()), this, SLOT(addSoundToDatabase()));
 
-
-  ui->deleteSound->setDisabled(true);
   ui->submit->setDisabled(true);
 }
 

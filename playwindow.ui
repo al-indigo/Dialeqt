@@ -80,19 +80,6 @@
     <widget class="QListView" name="playlist"/>
    </item>
    <item>
-    <widget class="QToolButton" name="deleteSound">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Удалить выбранную запись из словаря</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
       <string>Добавить к слову звуковой файл и описание</string>

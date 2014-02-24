@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     playlistmodel.cpp \
     utils.cpp \
     addconnection.cpp \
-    simplesearch.cpp
+    simplesearch.cpp \
+    deletionmaster.cpp
 
 HEADERS  += dialeqt.h \
     dialogcreatenewdictionary.h \
@@ -46,7 +47,8 @@ HEADERS  += dialeqt.h \
     playlistmodel.h \
     utils.h \
     addconnection.h \
-    simplesearch.h
+    simplesearch.h \
+    deletionmaster.h
 
 FORMS    += dialeqt.ui \
     dialogcreatenewdictionary.ui \

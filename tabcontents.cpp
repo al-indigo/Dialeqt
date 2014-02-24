@@ -136,11 +136,14 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QSet<DictGlobalAttribu
   ui->phonologyButton->setDisabled(true);
 //  ui->legendButton->setDisabled(true);
 //  ui->talesButton->setDisabled(true);
-  ui->deleteButton->setDisabled(true);
+  ui->deleteWordButton->setDisabled(true);
+  ui->deletePraatButton->setDisabled(true);
+  ui->deleteSoundButton->setDisabled(true);
 
   connect(ui->simpleSearchButton, SIGNAL(clicked()), this, SLOT(simpleSearch()));
   connect(ui->simpleSearchNext, SIGNAL(clicked()), this, SLOT(simpleSearchNext()));
   connect(ui->simpleSearchPrevious, SIGNAL(clicked()), this, SLOT(simpleSearchPrevious()));
+  connect(ui->simpleReplaceButton, SIGNAL(clicked()), this, SLOT(simpleReplaceCurrent()));
 }
 
 bool TabContents::copySelectedToClipboard() {
@@ -200,7 +203,9 @@ bool TabContents::simpleSearch() {
   emit search_activated();
 
   currentResult->toFront();
-  if (currentResult->hasNext()) currentResult->next();
+  if (currentResult->hasNext()) {
+      currentResult->next();
+    }
 
   return true;
 
@@ -226,6 +231,38 @@ bool TabContents::simpleSearchNext() {
       return false;
     }
 
+}
+
+bool TabContents::simpleReplaceCurrent() {
+  if (ui->simpleReplaceInput->text().isEmpty()) {
+      errorMsg("Нельзя заменить что-то на ничего: у вас должно быть что-то в поле ввода для замены.");
+      return false;
+    }
+  if (ui->simpleSearchInput->text().isEmpty()) {
+      errorMsg("Нельзя заменить ничего на что-то: ничего хорошего из этого не выйдет.");
+      return false;
+    }
+  if (! (lastSearchResults.contains(ui->dictionaryTable->currentIndex())) ) {
+      errorMsg("Чтобы заменить что-то из результатов поиска, необходимо, чтобы выделение находилось на одном из результатов. Самый простой способ достичь этого -- нажать на кнопки '►' или 'Искать'.");
+      return false;
+    }
+
+  QString currentContent = this->dictModel->data(ui->dictionaryTable->currentIndex()).toString();
+  QString replacedContent = this->dictModel->data(ui->dictionaryTable->currentIndex()).toString().replace(ui->simpleSearchInput->text(), ui->simpleReplaceInput->text(), Qt::CaseSensitive);
+  if (currentContent == replacedContent) {
+      qDebug() << "Было: " << currentContent << " стало: " << replacedContent;
+      errorMsg("В выделенной ячейке всё осталось по-прежнему: похоже, Вы заменили подстроку на саму себя. Менее вероятный (но возможный) вариант: Вы подменили строку поиска и не нажали кнопку 'Искать'. В этом случае нажмите на кнопку поиска.");
+      return false;
+    }
+
+  if (! this->dictModel->setData(ui->dictionaryTable->currentIndex(), replacedContent, Qt::EditRole) ) {
+      errorMsg("По неизвестной причине заменить содержимое в ячейке не удалось. Напишите об этом разработчику и опишите ситуацию как можно подробнее.");
+      return false;
+    } else {
+      lastSearchResults.removeAt(lastSearchResults.indexOf(ui->dictionaryTable->currentIndex()));
+      this->simpleSearchNext();
+      return true;
+    }
 }
 
 bool TabContents::simpleSearchPrevious() {

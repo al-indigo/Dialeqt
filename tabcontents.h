@@ -79,6 +79,7 @@ public slots:
   bool simpleSearch();
   bool simpleSearchNext();
   bool simpleSearchPrevious();
+  bool simpleReplaceCurrent();
 
 protected:
   Ui::TabContents *ui;
