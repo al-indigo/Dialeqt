@@ -38,6 +38,8 @@ protected:
   QString praatFilenameMarkup;
   QString praatFilenameSound;
 
+  QList <QPair <QVariant, QString> > praatListToSave;
+
   QString praatRightFormFilenameMarkup;
   QString praatRightFormFilenameSound;
   QString praatRightFormDescription;
@@ -56,6 +58,8 @@ public slots:
   bool choosePraatRight();
   bool checkPraatRightDescription();
   bool submitRightPraat();
+  bool sendToPraat();
+  bool saveChangesInPraat();
 
 protected:
   Ui::ParadigmWindow *ui;

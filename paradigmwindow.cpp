@@ -11,6 +11,8 @@
 #include <QSqlRelationalTableModel>
 #include <QSqlRelationalDelegate>
 #include <QFileDialog>
+#include <QDateTime>
+#include <QProcess>
 
 #include "customquerydiagnostics.h"
 #include "legendwindow.h"
@@ -102,10 +104,114 @@ ParadigmWindow::ParadigmWindow(DictGlobalAttributes _dictAttrs, QVariant _wordId
   connect(ui->choosePraat_2, SIGNAL(clicked()), this, SLOT(choosePraatRight()));
   connect(ui->praatDescription_3, SIGNAL(textChanged(QString)), this, SLOT(checkPraatRightDescription()));
   connect(ui->submitPraat_2, SIGNAL(clicked()), this, SLOT(submitRightPraat()));
+  connect(ui->sendToPraat_2, SIGNAL(clicked()), this, SLOT(sendToPraat()));
+  connect(ui->saveChangedPraatButton, SIGNAL(clicked()), this, SLOT(saveChangesInPraat()));
 
-  ui->sendToPraat_2->setDisabled(true);
 //  ui->deleteButton->setDisabled(true);
 }
+
+bool ParadigmWindow::sendToPraat() {
+  QItemSelectionModel *select = ui->praatList_2->selectionModel();
+
+  if (!select->hasSelection()) {
+      errorMsg("Вы не выбрали элементы для отправки в Praat");
+      return false;
+  }
+  QModelIndex index = ui->praatList_2->currentIndex();
+  QVariant praatblobid = index.sibling(index.row(),0).data();
+  QVariant praatname = index.sibling(index.row(),2).data();
+  qDebug() << praatblobid;
+
+  QSqlQuery query_blobs(db);
+  query_blobs.prepare("SELECT mainblob, secblob FROM blobs WHERE blobs.id = :blobid");
+  query_blobs.bindValue(":blobid", praatblobid);
+  query_blobs.exec();
+  qDebug() << getLastExecutedQuery(query_blobs);
+
+
+  // I do it because sendpraat is dumb: it doesn't understand paths with spaces and non-ASCII
+  QString dest_dir = QDir::tempPath();
+  qDebug() << "temp is here: " << dest_dir;
+
+  QString basename = QString::number(QDateTime::currentMSecsSinceEpoch());
+
+  while (query_blobs.next()) {
+      if (!extractSound(dest_dir, basename + QString(".wav"), query_blobs.value("mainblob").toByteArray())) {
+          qDebug() << "Can't decompress sound blobs";
+          errorMsg("Не удалось распаковать звук из праатовской пары файлов, так быть не должно. Либо у вас кончается место на диске, либо это ошибка -- напишите разработчику и не редактируйте словарь, пока он не ответит.");
+          return false;
+      } else {
+          if (!extractSound(dest_dir, basename + QString(".TextGrid"), query_blobs.value("secblob").toByteArray())) {
+              qDebug() << "Can't decompress praat markup";
+              errorMsg("Не удалось распаковать разметку из праатовской пары файлов, так быть не должно. Либо у вас кончается место на диске, либо это ошибка -- напишите разработчику и не редактируйте словарь, пока он не ответит.");
+              return false;
+          }
+      }
+   }
+  QProcess::startDetached("Praat.exe");
+  QStringList args;
+  QString arg1 = QString("praat");
+  QString arg2 = QString("sound = Read from file... %1/%2.wav").arg(dest_dir, basename);
+  QString arg3 = QString("markup = Read from file... %1/%2.TextGrid").arg(dest_dir, basename);
+  QString arg4 = QString("selectObject(sound,markup)");
+  QString arg5 = QString("View & Edit");
+  qDebug() << "args for praatsend: " << arg1 << arg2 << arg3 << arg4 << arg5;
+  args.append(arg1);
+  args.append(arg2);
+  args.append(arg3);
+  args.append(arg4);
+  args.append(arg5);
+  QProcess::execute("sendpraat.exe", args);
+  praatListToSave.append(QPair<QVariant, QString>(praatblobid, basename));
+  return true;
+}
+
+
+bool ParadigmWindow::saveChangesInPraat() {
+  QString temp_dir = QDir::tempPath();
+  QStringList args;
+  QString arg1 = QString("praat");
+  QString arg2 = QString("execute %1/scripts/saveallobjectstotemp.praat %2").arg(QDir::currentPath(), temp_dir);
+  qDebug() << "args for praatsend: " << arg1 << arg2;
+  args.append(arg1);
+  args.append(arg2);
+  QProcess::execute("sendpraat.exe", args);
+
+  for (int i=0; i < praatListToSave.size(); i++) {
+      QVariant blobid = praatListToSave[i].first;
+      QString basename = praatListToSave[i].second;
+
+      qDebug() << "temp is here: " << temp_dir;
+      QString markuppath = QDir::toNativeSeparators(temp_dir + QString("/") + basename + QString(".TextGrid"));
+      QString soundpath = QDir::toNativeSeparators(temp_dir + QString("/") + basename + QString(".wav"));
+
+      QByteArray praatMarkup;
+      QByteArray praatSound;
+      readAndCompress(markuppath, praatMarkup);
+      readAndCompress(soundpath, praatSound);
+
+      // here we need to push sound to blobs table, get id of blob and make a record in blobs_description_table
+      QSqlQuery praatBlobQuery(db);
+      praatBlobQuery.prepare("UPDATE blobs SET mainblob = :praatmarkupblob, secblob = :praatsoundblob WHERE id = :blobid");
+      praatBlobQuery.bindValue(":praatmarkupblob", praatMarkup);
+      praatBlobQuery.bindValue(":praatsoundblob", praatSound);
+      praatBlobQuery.bindValue(":blobid", blobid);
+
+      if (!praatBlobQuery.exec()) {
+          qDebug() << "Can't update praat blob";
+          qDebug() << "Query was the following: " << getLastExecutedQuery(praatBlobQuery);
+          qDebug() << db.lastError().text();
+          this->clearForms();
+          praatModel->select();
+          return false;
+      }
+  }
+  praatModel->select();
+  praatListToSave.clear();
+  return true;
+}
+
+
 
 bool ParadigmWindow::chooseSound() {
   if (!this->soundChosen) {
