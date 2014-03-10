@@ -47,6 +47,13 @@ public:
                return true;
              }
 
+             friend bool operator==(const DictGlobalAttributes &left, const QString &right) {
+               if (left.dbId != right) {
+                   return false;
+                 }
+               return true;
+             }
+
              DictGlobalAttributes &operator=(const DictGlobalAttributes& right) {
                if (this == &right) {
                    return *this;

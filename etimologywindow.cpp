@@ -38,6 +38,16 @@ EtimologyWindow::EtimologyWindow(QVariant _wordid, QVariant _word_transcription,
   connect(ui->close, SIGNAL(clicked()), this, SLOT(close()));
 
   this->checkConnectedDatabases();
+  connect(ui->unlink, SIGNAL(clicked()), this, SLOT(unlink()));
+}
+
+bool EtimologyWindow::unlink() {
+  if (unlinkEtymology(this->wordid, this->tag, this->db, this->dictsOpened)) {
+      setupModel();
+      return true;
+    } else {
+      return false;
+    }
 }
 
 void EtimologyWindow::setupModel() {
@@ -79,6 +89,7 @@ bool EtimologyWindow::checkConnectedDatabases() {
   if (!getConnectedDbList.exec()) {
       errorMsg("Не получается получить список связанных со словом словарей. Вы можете просмотреть связи, но не можете добавлять новые.");
       ui->addConnectionButton->setDisabled(true);
+      ui->unlink->setDisabled(true);
       return false;
     }
   QSet<QString> openedDbIdentifiers;
@@ -102,6 +113,8 @@ bool EtimologyWindow::checkConnectedDatabases() {
 
       errorMsg("Не все словари, с которыми связано слово, открыты. Вы можете просмотреть связи слова со словами из открытых словарей, но не можете добавить новые. Список недостающих словарей (это их идентификаторы):" + missingList);
       ui->addConnectionButton->setDisabled(true);
+      ui->unlink->setDisabled(true);
+
       return false;
     }
   connectedDbIdentifiers.intersect(openedDbIdentifiers);

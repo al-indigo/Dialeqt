@@ -131,20 +131,99 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QSet<DictGlobalAttribu
   connect(copyAction, SIGNAL(triggered()), this, SLOT(copySelectedToClipboard()));
   ui->dictionaryTable->addAction(copyAction);
 
-//  ui->paradigmButton->setDisabled(true);
-//  ui->sendToPraat->setDisabled(true);
   ui->phonologyButton->setDisabled(true);
-//  ui->legendButton->setDisabled(true);
-//  ui->talesButton->setDisabled(true);
-  ui->deleteWordButton->setDisabled(true);
-  ui->deletePraatButton->setDisabled(true);
-  ui->deleteSoundButton->setDisabled(true);
 
   connect(ui->simpleSearchButton, SIGNAL(clicked()), this, SLOT(simpleSearch()));
   connect(ui->simpleSearchNext, SIGNAL(clicked()), this, SLOT(simpleSearchNext()));
   connect(ui->simpleSearchPrevious, SIGNAL(clicked()), this, SLOT(simpleSearchPrevious()));
   connect(ui->simpleReplaceButton, SIGNAL(clicked()), this, SLOT(simpleReplaceCurrent()));
+  connect(ui->deletePraatButton, SIGNAL(clicked()), this, SLOT(deletePraat()));
+  connect(ui->deleteSoundButton, SIGNAL(clicked()), this, SLOT(deleteSound()));
+  connect(ui->deleteWordButton, SIGNAL(clicked()), this, SLOT(deleteEntry()));
+
+
 }
+
+bool TabContents::deleteEntry() {
+  QItemSelectionModel *select = ui->dictionaryTable->selectionModel();
+  if (!select->hasSelection()) {
+      errorMsg("Вы не выделили разметки, которые хотели бы удалить.");
+      return false;
+  }
+  if (!confirmationMsg("Вы уверены, что вы хотите удалить выбранные слова?", this)) {
+      return false;
+    }
+  QModelIndexList selected = select->selectedIndexes();
+  foreach (QModelIndex index, selected) {
+      QVariant wordid = index.sibling(index.row(),0).data();
+      QVariant tag = index.sibling(index.row(), 6).data();
+      if (!deleteWord(wordid, tag, db, dictsOpened)) {
+        this->updateModel();
+        return false;
+      }
+    }
+  this->updateModel();
+  praatModel->select();
+  soundsModel->select();
+  return true;
+}
+
+bool TabContents::deletePraat() {
+  QItemSelectionModel *select = ui->praatList->selectionModel();
+  if (!select->hasSelection()) {
+      errorMsg("Вы не выделили разметки, которые хотели бы удалить.");
+      return false;
+  }
+  if (!confirmationMsg("Вы уверены, что вы хотите удалить выбранные разметки Praat?", this)) {
+      return false;
+    }
+
+  QModelIndexList selected = select->selectedIndexes();
+  foreach (QModelIndex index, selected) {
+    QVariant praatblobid = index.sibling(index.row(),0).data();
+    if (!deleteAttachment(praatblobid, "dict_blobs_description", db)) {
+      praatModel->select();
+      errorMsg("Не удалось удалить разметку " + index.sibling(index.row(), 1).data().toString() + ", попробуйте ещё раз.");
+      return false;
+    }
+    for (QList<QPair <QVariant, QString> >::iterator i = praatListToSave.begin(); i != praatListToSave.end(); ++i) {
+        if (i->first == praatblobid) {
+            i = praatListToSave.erase(i);
+            i--;
+          }
+      }
+  }
+
+  praatModel->select();
+  return true;
+}
+
+bool TabContents::deleteSound() {
+  QItemSelectionModel *select = ui->soundsList->selectionModel();
+  if (!select->hasSelection()) {
+      errorMsg("Вы не выделили звуки, которые хотели бы удалить.");
+      return false;
+  }
+
+  if (!confirmationMsg("Вы уверены, что вы хотите удалить выбранные звуки?", this)) {
+      return false;
+    }
+
+  QModelIndexList selected = select->selectedIndexes();
+  foreach (QModelIndex index, selected) {
+    QVariant praatblobid = index.sibling(index.row(),0).data();
+    if (!deleteAttachment(praatblobid, "dict_blobs_description", db)) {
+      soundsModel->select();
+      errorMsg("Не удалось удалить звук " + index.sibling(index.row(), 1).data().toString() + ", попробуйте ещё раз.");
+      return false;
+    }
+  }
+
+  soundsModel->select();
+  return true;
+}
+
+
 
 bool TabContents::copySelectedToClipboard() {
   QAbstractItemModel * model = ui->dictionaryTable->model();

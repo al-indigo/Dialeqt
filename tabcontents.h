@@ -81,6 +81,10 @@ public slots:
   bool simpleSearchPrevious();
   bool simpleReplaceCurrent();
 
+  bool deletePraat();
+  bool deleteSound();
+  bool deleteEntry();
+
 protected:
   Ui::TabContents *ui;
   DictEntry readFields();

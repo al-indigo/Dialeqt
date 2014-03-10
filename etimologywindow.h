@@ -31,6 +31,7 @@ public:
 private slots:
   bool findWords();
   bool openDbAndAddConnection();
+  bool unlink();
 private:
   Ui::EtimologyWindow *ui;
   void setupModel();

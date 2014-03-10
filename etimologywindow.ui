@@ -90,6 +90,17 @@
        </widget>
       </item>
       <item>
+       <widget class="QToolButton" name="unlink">
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(170, 170, 0);</string>
+        </property>
+        <property name="text">
+         <string>Разорвать
+связь</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="close">
         <property name="text">
          <string>Закрыть</string>
