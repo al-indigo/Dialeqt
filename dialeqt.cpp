@@ -2,8 +2,10 @@
 #include "ui_dialeqt.h"
 #include "dialogcreatenewdictionary.h"
 #include "dictdbfactory.h"
+#include "search.h"
 
 #include "QFileDialog"
+#include "utils.h"
 
 Dialeqt::Dialeqt(QWidget *parent) :
     QMainWindow(parent),
@@ -45,4 +47,23 @@ void Dialeqt::on_openDictMenuButton_triggered()
         qDebug() << "cannot create dictionary tab";
       }
   }
+}
+
+void Dialeqt::on_searchButton_triggered()
+{
+  QWidget *wdgt = this->findChild<QWidget *>("dictsTabsContainerWidget");
+  DictTabsContainer *tabcontainer;
+  if (wdgt != NULL) {
+      qDebug() << "found tab container; resuming";
+      tabcontainer = static_cast<DictTabsContainer *> (wdgt);
+      if (tabcontainer->getDictsOpened()->size() == 0) {
+          errorMsg("Для того, чтобы воспользоваться поиском, необходимо, чтобы был открыт хотя бы один словарь.");
+          return;
+        }
+      Search searchWindow(tabcontainer->getDictsOpened(), this);
+      searchWindow.exec();
+      return;
+    }
+  errorMsg("Виджета с табами не существует: так не должно быть, напишите разработчику");
+
 }

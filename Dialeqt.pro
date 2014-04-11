@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     utils.cpp \
     addconnection.cpp \
     simplesearch.cpp \
-    deletionmaster.cpp
+    deletionmaster.cpp \
+    search.cpp
 
 HEADERS  += dialeqt.h \
     dialogcreatenewdictionary.h \
@@ -48,7 +49,8 @@ HEADERS  += dialeqt.h \
     utils.h \
     addconnection.h \
     simplesearch.h \
-    deletionmaster.h
+    deletionmaster.h \
+    search.h
 
 FORMS    += dialeqt.ui \
     dialogcreatenewdictionary.ui \
@@ -60,7 +62,8 @@ FORMS    += dialeqt.ui \
     etimologywindow.ui \
     playwindow.ui \
     addconnection.ui \
-    simplesearch.ui
+    simplesearch.ui \
+    search.ui
 
 RESOURCES += \
     resources.qrc

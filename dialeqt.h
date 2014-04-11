@@ -18,6 +18,7 @@ public:
 private slots:
     void on_createDictMenuButton_triggered();
     void on_openDictMenuButton_triggered();
+    void on_searchButton_triggered();
 private:
     Ui::Dialeqt *ui;
 };

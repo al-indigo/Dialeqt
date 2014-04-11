@@ -20,6 +20,7 @@ public:
   bool openDictTabInitial(DictGlobalAttributes & dictAttrs, const QString& filename);
   bool createTab(DictGlobalAttributes dictAttrs);
   bool isDictOpened(QString dbId);
+  const QSet<DictGlobalAttributes> * getDictsOpened() { return &dictsOpened; };
 signals:
   
 public slots:
