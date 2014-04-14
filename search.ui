@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>669</width>
-    <height>274</height>
+    <height>333</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,6 +21,26 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
+    <widget class="QGroupBox" name="globalVars">
+     <property name="font">
+      <font>
+       <stylestrategy>PreferAntialias</stylestrategy>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string>Пример использования глобальных переменных: А=б,к Б=н,к</string>
+     </property>
+     <property name="title">
+      <string>Глобальные переменные поиска</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QLineEdit" name="globalVarsLine"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="searchBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -28,12 +48,56 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Поддерживаются переменные и вайлдкарды.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;1&lt;/span&gt;. Использование переменных.&lt;/p&gt;&lt;p&gt;а) Допустим, вы определили переменные в предыдущем поле(&lt;span style=&quot; font-weight:600;&quot;&gt;А=б,к Б=к,н&lt;/span&gt;).&lt;/p&gt;&lt;p&gt;б) В строке поиска вы можете вбить&lt;span style=&quot; font-weight:600;&quot;&gt; $Али$Б&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;в) В качестве результата поиска вам могут выпасть слова &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;клин&lt;/span&gt;, &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;клик&lt;/span&gt;, &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;блин&lt;/span&gt;, &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;блик.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;г) Если вы используете локальные переменные для каждого словаря, и вы не определили переменную для одного из них, неопределенная переменная будет заменена на вайлдкард &amp;quot;&lt;span style=&quot; font-weight:600;&quot;&gt;_&lt;/span&gt;&amp;quot;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;2. &lt;/span&gt;Использование вайлдкардов.&lt;/p&gt;&lt;p&gt;Поддерживаются вайлдкарды &amp;quot;%&amp;quot; и &amp;quot;_&amp;quot;. Вайлдкард % означает любое количество символов, вайлдкард &amp;quot;_&amp;quot; означает ровно один любой символ. Примеры:&lt;/p&gt;&lt;p&gt;а) Запрос вида &amp;quot;&lt;span style=&quot; font-weight:600;&quot;&gt;коро%&lt;/span&gt;&amp;quot; может вернуть в качестве результата слова &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;корона, король, королева, коронка, корова&lt;/span&gt;&lt;/p&gt;&lt;p&gt;б) Запрос вида &amp;quot;&lt;span style=&quot; font-weight:600;&quot;&gt;ре_ень&lt;/span&gt;&amp;quot; выдаст в качестве ответа слова &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;ремень, ревень&lt;/span&gt;&lt;/p&gt;&lt;p&gt;в) Вайлдкарды можно комбинировать (использовать несколько вайлдкардов в одном запросе).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="title">
       <string>Что искать?</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QLineEdit" name="searchLine"/>
+       <widget class="QLineEdit" name="searchLine">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="comboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>0</height>
+         </size>
+        </property>
+        <item>
+         <property name="text">
+          <string>Искать в транскрипциях</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Искать в парадигмах</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Искать в регулярных формах</string>
+         </property>
+        </item>
+       </widget>
       </item>
      </layout>
     </widget>

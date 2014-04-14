@@ -1,5 +1,6 @@
 #include "search.h"
 #include "ui_search.h"
+#include "utils.h"
 
 #include <QLabel>
 #include <QCheckBox>
@@ -44,18 +45,49 @@ Search::Search(const QSet<DictGlobalAttributes> * attrs, QWidget *parent) :
       QCheckBox * checkbox = new QCheckBox(tr((*i).getDictname().toStdString().c_str()));
       checkbox->setProperty("row", counter);
       checkbox->setProperty("connection name", (*i).getFilename());
+      checkbox->setChecked(true);
       layout->addWidget(checkbox, counter, 0);
 //      layout->addWidget(new QLabel(tr(QVariant(counter).toString().toStdString().c_str())), counter, 1);
-      layout->addWidget(new QLineEdit(), counter, 1);
+      QLineEdit * line = new QLineEdit();
+
+      line->setToolTip("В этом поле вы можете задать локальные переменные поиска для каждого из словарей. \nО переменных подробнее написано в всплывающей подсказке в поле 'глобальные переменные поиска'");
+      layout->addWidget(line, counter, 1);
   }
 
   ui->whereToSearchBox->setLayout(layout);
 
   connect(ui->findButton, SIGNAL(clicked()), this, SLOT(onSearchClick()));
+}
 
+
+bool Search::checkVars(QString line) {
+  QStringList varsList = line.split(" ");
+  QRegExp rx("(.=(.+(,)?)+)*");
+  foreach (const QString &item, varsList) {
+      if (!rx.exactMatch(item)) return false;
+  }
+
+  return true;
+}
+
+bool Search::checkQuery(QString line) {
+  return true;
+}
+
+QMap<QString, QList<QString> > Search::parseVars(QString line) {
+  QMap<QString, QList<QString> > vars;
+  return vars;
+}
+
+QString constructQuery(QString line, QMap<QString, QList<QString> > vars) {
+  return QString("");
 }
 
 bool Search::onSearchClick() {
+  if (!this->checkVars(ui->globalVarsLine->text())) {
+      errorMsg("Вы неправильно заполнили поле глобальных переменных. Наведите мышь на поле ввода глобальных переменных на пару секунд, и выскочит подсказка, в которой написано, как правильно задавать переменные.");
+    }
+
   QList<QCheckBox *> ch = ui->whereToSearchBox->findChildren<QCheckBox *>();
   qDebug() << "List size:" << ch.size();
   for (QList<QCheckBox *>::iterator i = ch.begin(); i != ch.end(); ++i) {
@@ -63,8 +95,20 @@ bool Search::onSearchClick() {
       if (checked) {
           qDebug() << (*i)->property("row");
           qDebug() << (*i)->property("connection name");
+
+          QLineEdit * varline = (QLineEdit *) layout->itemAtPosition((*i)->property("row").toInt(), 1)->widget();
+          if (varline != NULL) {
+            qDebug() << "Checking var line";
+            if (!this->checkVars(varline->text())) {
+                QString msg = "Вы неправильно заполнили поле переменных. Наведите мышь на поле ввода глобальных переменных на пару секунд, и выскочит подсказка, в которой написано, как правильно задавать переменные. \nОшибка в строке: ";
+                msg.append(varline->text());
+                errorMsg(msg);
+              }
+          }
+
         }
     }
+
   return true;
 }
 

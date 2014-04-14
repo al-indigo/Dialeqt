@@ -27,6 +27,10 @@ private slots:
 
 private:
   Ui::search *ui;
+  bool checkQuery(QString line);
+  bool checkVars(QString line);
+  QMap<QString, QList<QString> > parseVars(QString line);
+  QString constructQuery(QString line, QMap<QString, QList<QString> > vars);
 };
 
 #endif // SEARCH_H
