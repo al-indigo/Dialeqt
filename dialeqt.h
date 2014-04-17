@@ -10,7 +10,11 @@ class Dialeqt;
 
 class Dialeqt : public QMainWindow
 {
-    Q_OBJECT
+  Q_OBJECT
+  QDialog *searchWindow;
+  QLayout *searchWindowLayout;
+  QTabWidget *searchtabscontainer;
+
 public:
     explicit Dialeqt(QWidget *parent = 0);
     ~Dialeqt();

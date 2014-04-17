@@ -30,7 +30,7 @@ private:
   bool checkQuery(QString line);
   bool checkVars(QString line);
   QMap<QString, QList<QString> > parseVars(QString line);
-  QString constructQuery(QString line, QMap<QString, QList<QString> > vars);
+  QString constructQuery(int dict_size);
 };
 
 #endif // SEARCH_H

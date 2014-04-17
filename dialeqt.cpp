@@ -13,6 +13,16 @@ Dialeqt::Dialeqt(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    searchWindow = new QDialog(this);
+    searchWindowLayout = new QVBoxLayout(searchWindow);
+    searchtabscontainer = new QTabWidget(searchWindow);
+    searchtabscontainer->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    searchtabscontainer->insertTab(0, new QWidget(), "dummy tab");
+
+    searchWindowLayout->addWidget(searchtabscontainer);
+    searchWindow->setLayout(searchWindowLayout);
+
+
 }
 
 Dialeqt::~Dialeqt()
@@ -52,16 +62,20 @@ void Dialeqt::on_openDictMenuButton_triggered()
 void Dialeqt::on_searchButton_triggered()
 {
   QWidget *wdgt = this->findChild<QWidget *>("dictsTabsContainerWidget");
-  DictTabsContainer *tabcontainer;
+
   if (wdgt != NULL) {
       qDebug() << "found tab container; resuming";
-      tabcontainer = static_cast<DictTabsContainer *> (wdgt);
+      DictTabsContainer *tabcontainer = static_cast<DictTabsContainer *> (wdgt);
       if (tabcontainer->getDictsOpened()->size() == 0) {
           errorMsg("Для того, чтобы воспользоваться поиском, необходимо, чтобы был открыт хотя бы один словарь.");
           return;
         }
-      Search searchWindow(tabcontainer->getDictsOpened(), this);
-      searchWindow.exec();
+      searchtabscontainer->removeTab(0);
+      Search * searchTab = new Search(tabcontainer->getDictsOpened(), this);
+      searchTab->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+      searchtabscontainer->insertTab(0, searchTab, "Поиск");
+
+      searchWindow->open();
       return;
     }
   errorMsg("Виджета с табами не существует: так не должно быть, напишите разработчику");

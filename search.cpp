@@ -6,6 +6,9 @@
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QProgressBar>
+#include <QTreeWidget>
+#include <QSqlDatabase>
+#include <QSqlQuery>
 
 #include <QFormLayout>
 #include <QComboBox>
@@ -46,6 +49,7 @@ Search::Search(const QSet<DictGlobalAttributes> * attrs, QWidget *parent) :
       QCheckBox * checkbox = new QCheckBox(tr((*i).getDictname().toStdString().c_str()));
       checkbox->setProperty("row", counter);
       checkbox->setProperty("connection name", (*i).getFilename());
+      checkbox->setProperty("dictionary name", (*i).getDictname());
       checkbox->setChecked(true);
       layout->addWidget(checkbox, counter, 0);
 //      layout->addWidget(new QLabel(tr(QVariant(counter).toString().toStdString().c_str())), counter, 1);
@@ -87,6 +91,10 @@ QMap<QString, QList<QString> > Search::parseVars(QString line) {
 QStringList constructDictionary(const QStringList& initialLine, QString vars) {
   QStringList dictionary;
   QStringList plainDictionary; //this list contains lines that don't need to have replaces
+
+  if (vars.trimmed().isEmpty()) {
+      return initialLine;
+    }
 
   foreach (const QString &line, initialLine) {
     if (!line.contains("$")) {
@@ -153,8 +161,29 @@ QStringList constructDictionary(const QStringList& initialLine, QString vars) {
 
 }
 
-QString constructQuery(QString line, QMap<QString, QList<QString> > vars) {
-  return QString("");
+QString Search::constructQuery(int dict_size) {
+  QString query("SELECT id, word, transcription, translation FROM 'dictionary' WHERE ");
+  if (ui->etimCheck->isChecked()) {
+      query.append("(etimology_tag NOT NULL) AND ");
+    }
+  if (ui->paradigmCheck->isChecked()) {
+      query.append("id = (SELECT regular_form FROM 'dictionary') AND ");
+    }
+  if (ui->praatCheck->isChecked()) {
+      query.append("id = (SELECT wordid FROM 'dict_blobs_description' WHERE type=2) AND ");
+    }
+  if (ui->praatCheck->isChecked()) {
+      query.append("id = (SELECT wordid FROM 'dict_blobs_description' WHERE type=1) AND ");
+    }
+  if (ui->whereToSearchCombo->currentIndex() == 0) {
+      query.append("(");
+      query.append("(transcription LIKE ?)");
+      for (int i = 1; i < dict_size; i++) {
+          query.append(" OR (transcription LIKE ?)");
+        }
+      query.append(")");
+    }
+  return query;
 }
 
 bool Search::onSearchClick() {
@@ -167,6 +196,7 @@ bool Search::onSearchClick() {
 
   QList<QCheckBox *> ch = ui->whereToSearchBox->findChildren<QCheckBox *>();
   qDebug() << "List size:" << ch.size();
+
   for (QList<QCheckBox *>::iterator i = ch.begin(); i != ch.end(); ++i) {
       bool checked = ( (*i)->isChecked());
       if (checked) {
@@ -181,17 +211,68 @@ bool Search::onSearchClick() {
                 msg.append(varline->text());
                 errorMsg(msg);
               }
+            }
+        }
+    }
+
+  QTreeWidget * resTree = new QTreeWidget(this);
+  QStringList labels;
+  resTree->setColumnCount(3);
+  resTree->setSortingEnabled(true);
+  labels.append("Регулярная форма");
+  labels.append("Транскрипция");
+  labels.append("Перевод");
+  resTree->setHeaderLabels(labels);
+
+  for (QList<QCheckBox *>::iterator i = ch.begin(); i != ch.end(); ++i) {
+      bool checked = ( (*i)->isChecked());
+      if (checked) {
+          qDebug() << (*i)->property("row");
+          qDebug() << (*i)->property("connection name");
+
+          QTreeWidgetItem * resultsForDict = new QTreeWidgetItem((*i)->property("dictionary name").toStringList());
+
+          resTree->addTopLevelItem(resultsForDict);
+          QLineEdit * varline = (QLineEdit *) layout->itemAtPosition((*i)->property("row").toInt(), 1)->widget();
+          if (varline != NULL) {
             QStringList dict;
             dict.push_back(ui->searchLine->text());
             dict = constructDictionary(dict, varline->text());
             foreach(const QString& item, dict) {
-                qDebug() << "Replaced: " << item;
+                qDebug() << "Replaced by local: " << item;
               }
+
+//            dict = constructDictionary(dict, ui->globalVarsLine->text());
+            foreach(const QString& item, dict) {
+//                qDebug() << "Replaced by global: " << item;
+              }
+
+            qDebug() << "Dict size" << dict.size();
+
+            qDebug() << constructQuery(dict.size());
+            QString queryText = constructQuery(dict.size());
+            QSqlQuery query(QSqlDatabase::database((*i)->property("connection name").toString()));
+            query.prepare(queryText);
+            for (int i = 0; i < dict.size(); i++) {
+                query.bindValue(i, QVariant(dict[i]));
+              }
+            if (query.exec()) {
+                while (query.next()) {
+                    QStringList item;
+                    item.append(query.value("word").toString());
+                    item.append(query.value("transcription").toString());
+                    item.append(query.value("translation").toString());
+                    QTreeWidgetItem * entry = new QTreeWidgetItem(item);
+                    resultsForDict->addChild(entry);
+                  }
+              }
+
+//            qDebug() << this->parent()->parent()->metaObject()->className();
           }
 
         }
     }
-
+  (static_cast<QTabWidget *>(this->parentWidget()->parentWidget()))->addTab(resTree, ui->searchLine->text());
   ui->verticalLayout_2->removeWidget(progress);
   delete progress;
   return true;

@@ -2,12 +2,15 @@
 <ui version="4.0">
  <class>search</class>
  <widget class="QDialog" name="search">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>669</width>
-    <height>333</height>
+    <height>340</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,6 +21,9 @@
   </property>
   <property name="windowTitle">
    <string>Поиск</string>
+  </property>
+  <property name="modal">
+   <bool>false</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -69,7 +75,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBox">
+       <widget class="QComboBox" name="whereToSearchCombo">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -192,7 +198,8 @@
       <item>
        <widget class="QToolButton" name="cancelButton">
         <property name="text">
-         <string>Отменить поиск и закрыть это окно</string>
+         <string>Отменить поиск и закрыть это окно.
+Результаты предыдущих поисков не пропадут.</string>
         </property>
        </widget>
       </item>
