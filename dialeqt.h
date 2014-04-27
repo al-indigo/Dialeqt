@@ -18,6 +18,9 @@ class Dialeqt : public QMainWindow
 public:
     explicit Dialeqt(QWidget *parent = 0);
     ~Dialeqt();
+
+public slots:
+  void closeSearchTab(int tab);
     
 private slots:
     void on_createDictMenuButton_triggered();

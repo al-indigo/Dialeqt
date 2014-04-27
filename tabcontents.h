@@ -85,6 +85,8 @@ public slots:
   bool deleteSound();
   bool deleteEntry();
 
+  bool goToWord(QVariant id);
+
 protected:
   Ui::TabContents *ui;
   DictEntry readFields();

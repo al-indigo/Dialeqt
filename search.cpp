@@ -1,6 +1,7 @@
 #include "search.h"
 #include "ui_search.h"
 #include "utils.h"
+#include "dicttabscontainer.h"
 
 #include <QLabel>
 #include <QCheckBox>
@@ -22,20 +23,6 @@ Search::Search(const QSet<DictGlobalAttributes> * attrs, QWidget *parent) :
   ui(new Ui::search)
 {
   ui->setupUi(this);
-
-//  QCheckBox testchk;
-//  QLabel testlabel(tr("QWE"));
-//  QLineEdit testlndt;
-//  this->dictsToSearch.addWidget(&testchk, 0, 0);
-//  this->dictsToSearch.addWidget(&testlabel, 0, 1);
-//  this->dictsToSearch.addWidget(&testlndt, 0, 2);
-//  ui->whereToSearchBox->setLayout(&(this->dictsToSearch));
-
-//  formGroupBox = new QGroupBox(tr("Form layout"));
-
-//      ui->whereToSearchBox->setMinimumHeight(300);
-//      ui->whereToSearchBox->setMinimumWidth(600);
-//      ui->whereToSearchBox->setLayout(layout);
 
   layout = new QGridLayout(ui->whereToSearchBox);
 
@@ -88,12 +75,21 @@ QMap<QString, QList<QString> > Search::parseVars(QString line) {
   return vars;
 }
 
-QStringList constructDictionary(const QStringList& initialLine, QString vars) {
+QStringList constructDictionary(const QStringList& initialLine, QString vars, bool isglobal) {
   QStringList dictionary;
   QStringList plainDictionary; //this list contains lines that don't need to have replaces
 
   if (vars.trimmed().isEmpty()) {
-      return initialLine;
+      plainDictionary = initialLine;
+      for (int i = 0; i < plainDictionary.size(); i++) {
+          plainDictionary[i].append("%");
+          plainDictionary[i].prepend("%");
+          if (isglobal) {
+            plainDictionary[i].replace(QRegularExpression("\\$."), "_");
+            qDebug() << "Replaced unused variable, that's what we get: " << plainDictionary[i];
+            }
+        }
+      return plainDictionary;
     }
 
   foreach (const QString &line, initialLine) {
@@ -127,7 +123,7 @@ QStringList constructDictionary(const QStringList& initialLine, QString vars) {
         QString varname = item[0];
         varname.prepend("$");
         if (!line.contains(varname)) {
-            qDebug() << line << " doesn't contain $" << varname;
+            qDebug() << line << " doesn't contain" << varname;
             continue;
           } else {
             QString onlyValues = item.mid(2);
@@ -156,40 +152,81 @@ QStringList constructDictionary(const QStringList& initialLine, QString vars) {
       }
     }
 
+  for (int i = 0; i < plainDictionary.size(); i++) {
+      plainDictionary[i].append("%");
+      plainDictionary[i].prepend("%");
+      if (isglobal) {
+        plainDictionary[i].replace(QRegularExpression("\\$."), "_");
+        }
+    }
+
+  for (int i = 0; i < dictionary.size(); i++) {
+      dictionary[i].append("%");
+      dictionary[i].prepend("%");
+      if (isglobal) {
+        dictionary[i].replace(QRegularExpression("\\$."), "_");
+        }
+    }
+
   dictionary.append(plainDictionary);
   return dictionary;
 
 }
 
 QString Search::constructQuery(int dict_size) {
-  QString query("SELECT id, word, transcription, translation FROM 'dictionary' WHERE ");
+  QString query("SELECT * FROM 'dictionary' WHERE ");
+//  QString query("SELECT id, word, transcription, translation FROM 'dictionary' WHERE ");
   if (ui->etimCheck->isChecked()) {
       query.append("(etimology_tag NOT NULL) AND ");
     }
+
   if (ui->paradigmCheck->isChecked()) {
       query.append("id = (SELECT regular_form FROM 'dictionary') AND ");
     }
+
   if (ui->praatCheck->isChecked()) {
       query.append("id = (SELECT wordid FROM 'dict_blobs_description' WHERE type=2) AND ");
     }
-  if (ui->praatCheck->isChecked()) {
+
+  if (ui->audioCheck->isChecked()) {
       query.append("id = (SELECT wordid FROM 'dict_blobs_description' WHERE type=1) AND ");
     }
+
+
   if (ui->whereToSearchCombo->currentIndex() == 0) {
-      query.append("(");
+      query.append("regular_form IS NULL AND (");
       query.append("(transcription LIKE ?)");
       for (int i = 1; i < dict_size; i++) {
           query.append(" OR (transcription LIKE ?)");
         }
       query.append(")");
+    } else if (ui->whereToSearchCombo->currentIndex() == 1) {
+      query.append("(");
+      query.append("(translation LIKE ?)");
+      for (int i = 1; i < dict_size; i++) {
+          query.append(" OR (translation LIKE ?)");
+        }
+      query.append(")");
+    } else if (ui->whereToSearchCombo->currentIndex() == 2) {
+      query.append("regular_form NOT NULL AND (");
+      query.append("(transcription LIKE ?)");
+      for (int i = 1; i < dict_size; i++) {
+          query.append(" OR (transcription LIKE ?)");
+        }
+      query.append(")");
+    } else if (ui->whereToSearchCombo->currentIndex() == 3) {
+      query.append("(");
+      query.append("(word LIKE ?)");
+      for (int i = 1; i < dict_size; i++) {
+          query.append(" OR (word LIKE ?)");
+        }
+      query.append(")");
     }
+
   return query;
 }
 
 bool Search::onSearchClick() {
-  QProgressBar * progress = new QProgressBar(this);
-  ui->verticalLayout_2->addWidget(progress);
-  progress->setValue(20);
   if (!this->checkVars(ui->globalVarsLine->text())) {
       errorMsg("Вы неправильно заполнили поле глобальных переменных. Наведите мышь на поле ввода глобальных переменных на пару секунд, и выскочит подсказка, в которой написано, как правильно задавать переменные.");
     }
@@ -220,9 +257,14 @@ bool Search::onSearchClick() {
   resTree->setColumnCount(3);
   resTree->setSortingEnabled(true);
   labels.append("Регулярная форма");
+  labels.append("Указатель на регулярную форму");
   labels.append("Транскрипция");
   labels.append("Перевод");
+  labels.append("ID");
   resTree->setHeaderLabels(labels);
+  resTree->hideColumn(1);
+  resTree->hideColumn(4);
+  resTree->setColumnWidth(0,350);
 
   for (QList<QCheckBox *>::iterator i = ch.begin(); i != ch.end(); ++i) {
       bool checked = ( (*i)->isChecked());
@@ -237,14 +279,14 @@ bool Search::onSearchClick() {
           if (varline != NULL) {
             QStringList dict;
             dict.push_back(ui->searchLine->text());
-            dict = constructDictionary(dict, varline->text());
+            dict = constructDictionary(dict, varline->text(), false);
             foreach(const QString& item, dict) {
                 qDebug() << "Replaced by local: " << item;
               }
 
-//            dict = constructDictionary(dict, ui->globalVarsLine->text());
+            dict = constructDictionary(dict, ui->globalVarsLine->text(), true);
             foreach(const QString& item, dict) {
-//                qDebug() << "Replaced by global: " << item;
+                qDebug() << "Replaced by global: " << item;
               }
 
             qDebug() << "Dict size" << dict.size();
@@ -260,8 +302,10 @@ bool Search::onSearchClick() {
                 while (query.next()) {
                     QStringList item;
                     item.append(query.value("word").toString());
+                    item.append(query.value("regular_form").toString());
                     item.append(query.value("transcription").toString());
                     item.append(query.value("translation").toString());
+                    item.append(query.value("id").toString());
                     QTreeWidgetItem * entry = new QTreeWidgetItem(item);
                     resultsForDict->addChild(entry);
                   }
@@ -272,9 +316,31 @@ bool Search::onSearchClick() {
 
         }
     }
-  (static_cast<QTabWidget *>(this->parentWidget()->parentWidget()))->addTab(resTree, ui->searchLine->text());
-  ui->verticalLayout_2->removeWidget(progress);
-  delete progress;
+  int tabid = (static_cast<QTabWidget *>(this->parentWidget()->parentWidget()))->addTab(resTree, ui->searchLine->text());
+  qDebug() << this->parentWidget()->parentWidget()->parentWidget()->parentWidget()->findChild<DictTabsContainer *>();
+  connect(this, SIGNAL(showDictAndWord(QString,QVariant)), this->parentWidget()->parentWidget()->parentWidget()->parentWidget()->findChild<DictTabsContainer *>(), SLOT(goToDictAndWord(QString,QVariant)));
+  connect(resTree, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickTree(QModelIndex)));
+  (static_cast<QTabWidget *>(this->parentWidget()->parentWidget()))->setCurrentIndex(tabid);
+  return true;
+}
+
+bool Search::doubleClickTree(QModelIndex idx) {
+  QVariant id = idx.sibling(idx.row(), 4).data();
+  if (!id.isValid()) {
+      return false;
+    }
+
+  //that means that we were looking for paradigm
+  if (!idx.sibling(idx.row(), 1).data().toString().isEmpty()) {
+      id = idx.sibling(idx.row(), 1).data();
+    }
+
+  QString dictName = idx.parent().data().toString();
+
+  qDebug() << "Clicked " << dictName << id;
+
+  emit showDictAndWord(dictName, id);
+
   return true;
 }
 

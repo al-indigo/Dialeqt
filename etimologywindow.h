@@ -28,10 +28,15 @@ public:
   explicit EtimologyWindow(QVariant _wordid, QVariant _word_transcription, QVariant _etimology_tag, QSqlDatabase _currentDb, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent = 0);
   ~EtimologyWindow();
 
+signals:
+  bool goToWordInDict(QString dict, QVariant id);
+
 private slots:
   bool findWords();
   bool openDbAndAddConnection();
   bool unlink();
+  bool goToSelected();
+
 private:
   Ui::EtimologyWindow *ui;
   void setupModel();

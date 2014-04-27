@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -28,6 +28,12 @@
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QGroupBox" name="globalVars">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="font">
       <font>
        <stylestrategy>PreferAntialias</stylestrategy>
@@ -91,6 +97,11 @@
         <item>
          <property name="text">
           <string>Искать в транскрипциях</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Искать в переводах</string>
          </property>
         </item>
         <item>
@@ -195,14 +206,6 @@
       <bool>true</bool>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <widget class="QToolButton" name="cancelButton">
-        <property name="text">
-         <string>Отменить поиск и закрыть это окно.
-Результаты предыдущих поисков не пропадут.</string>
-        </property>
-       </widget>
-      </item>
       <item>
        <widget class="QPushButton" name="findButton">
         <property name="text">

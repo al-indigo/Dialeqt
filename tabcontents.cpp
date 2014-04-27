@@ -14,6 +14,7 @@
 #include <QClipboard>
 #include <QAction>
 
+#include "dicttabscontainer.h"
 #include "tabcontents.h"
 #include "customquerydiagnostics.h"
 #include "legendwindow.h"
@@ -65,7 +66,8 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QSet<DictGlobalAttribu
   initializeDictModel(dictModel);
 
   ui->dictionaryTable->setModel(dictModel);
-  ui->dictionaryTable->setColumnHidden(0,true);
+  ui->dictionaryTable->setColumnHidden(0,false);
+  ui->dictionaryTable->setColumnWidth(0,1);
   ui->dictionaryTable->setColumnHidden(2,true);
   ui->dictionaryTable->setColumnHidden(5,true);
   ui->dictionaryTable->setColumnHidden(6,true);
@@ -141,7 +143,22 @@ TabContents::TabContents(DictGlobalAttributes _dictAttrs, QSet<DictGlobalAttribu
   connect(ui->deleteSoundButton, SIGNAL(clicked()), this, SLOT(deleteSound()));
   connect(ui->deleteWordButton, SIGNAL(clicked()), this, SLOT(deleteEntry()));
 
+  connect(this->parentWidget()->parentWidget()->findChild<DictTabsContainer *>(), SIGNAL(goToWord(QVariant)), this, SLOT(goToWord(QVariant)));
 
+
+}
+
+bool TabContents::goToWord(QVariant id) {
+  QModelIndexList idx = this->dictModel->match(this->dictModel->index(0, 0), Qt::DisplayRole, id.toString(), -1, Qt::MatchExactly);
+  if (idx.empty()) {
+      qDebug() << "Nothing found";
+      return false;
+    }
+  qDebug() << idx[0];
+  ui->dictionaryTable->setCurrentIndex(idx[0]);
+  ui->dictionaryTable->selectionModel()->setCurrentIndex(idx[0], QItemSelectionModel::Select | QItemSelectionModel::Rows);
+  ui->dictionaryTable->setFocus();
+  return true;
 }
 
 bool TabContents::deleteEntry() {
@@ -820,6 +837,9 @@ TabContents::~TabContents()
   }
 
   QSqlDatabase::removeDatabase(connname);
+
+  static_cast<DictTabsContainer *>(this->parentWidget()->parentWidget())->removeDictFromSet(dictAttrs);
+
   delete ui;
 }
 

@@ -1,5 +1,5 @@
-#ifndef CUSTOMQHASH_H
-#define CUSTOMQHASH_H
+#ifndef __CUSTOMQHASH_H
+#define __CUSTOMQHASH_H
 
 #include "dictglobalattributes.h"
 
@@ -7,4 +7,4 @@ uint qHash(const DictGlobalAttributes &attrs) {
                return qHash(attrs.getDictname());
              }
 
-#endif // CUSTOMQHASH_H
+#endif // __CUSTOMQHASH_H

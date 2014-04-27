@@ -7,6 +7,7 @@
 #include "addconnection.h"
 #include "utils.h"
 #include "customquerydiagnostics.h"
+#include "dicttabscontainer.h"
 
 EtimologyWindow::EtimologyWindow(QVariant _wordid, QVariant _word_transcription, QVariant _etimology_tag, QSqlDatabase _current_db, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent) :
   wordid(_wordid),
@@ -39,6 +40,10 @@ EtimologyWindow::EtimologyWindow(QVariant _wordid, QVariant _word_transcription,
 
   this->checkConnectedDatabases();
   connect(ui->unlink, SIGNAL(clicked()), this, SLOT(unlink()));
+  connect(ui->goToWord, SIGNAL(clicked()), this, SLOT(goToSelected()));
+
+  connect(this, SIGNAL(goToWordInDict(QString,QVariant)), this->parentWidget()->parentWidget()->parentWidget()->parentWidget()->findChild<DictTabsContainer *>(), SLOT(goToDictAndWord(QString, QVariant)));
+
 }
 
 bool EtimologyWindow::unlink() {
@@ -178,8 +183,9 @@ bool EtimologyWindow::findWords() {
         wordsmodel->setQuery(modelquery);
 //        wordsmodel->setQuery("SELECT dictionary.id, dictionary.transcription FROM dictionary WHERE etimology_tag='1381452591621test1';", QSqlDatabase::database(item.getFilename()));
 //        wordsmodel->setQuery(dirty, QSqlDatabase::database(item.getFilename()));
-        ui->listView->setModel(wordsmodel);
-        ui->listView->setModelColumn(1);
+        ui->tableView->setModel(wordsmodel);
+        wordsmodel->setHeaderData(1, Qt::Horizontal, QObject::tr("Транскрипция"));
+        ui->tableView->setColumnHidden(0, true);
         return true;
     }
   }
@@ -187,6 +193,24 @@ bool EtimologyWindow::findWords() {
   errorMsg("Этот словарь сейчас не открыт в программе: чтобы посмотреть взаимосвязи для этого словаря, вам сначала нужно его открыть.");
 
   return false;
+}
+
+bool EtimologyWindow::goToSelected() {
+  QItemSelectionModel *select = ui->tableView->selectionModel();
+  if (!select->hasSelection()) {
+      errorMsg("Вы не выделили слово, к которому хотите перейти.");
+      return false;
+  }
+
+  QModelIndexList selected = select->selectedIndexes();
+  foreach (QModelIndex index, selected) {
+    QVariant id = index.sibling(index.row(),0).data();
+    QModelIndexList dictionaries = ui->treeView->selectionModel()->selectedIndexes();
+    QString dict = dictionaries[0].data().toString();
+    emit goToWordInDict(dict, id);
+    }
+
+  return true;
 }
 
 EtimologyWindow::~EtimologyWindow()

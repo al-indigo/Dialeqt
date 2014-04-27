@@ -5,9 +5,21 @@
 #include <QSqlRelationalTableModel>
 #include <QSizePolicy>
 #include "tabcontents.h"
-#include "customqhash.h"
 #include "customquerydiagnostics.h"
+#include "customqhash.h"
 #include "utils.h"
+
+void DictTabsContainer::removeDictFromSet(DictGlobalAttributes& dict) {
+  dictsOpened.remove(dict);
+  dictsOpenedMap.remove(dict.getDictname());
+  qDebug() << "DictAttr removed from set";
+}
+
+DictTabsContainer::~DictTabsContainer() {
+  dictsOpened.clear();
+  dictsOpenedMap.clear();
+}
+
 
 DictTabsContainer::DictTabsContainer(QWidget *parent) :
   QTabWidget(parent)
@@ -24,6 +36,13 @@ bool DictTabsContainer::remove(int tab) {
   return true;
 }
 
+bool DictTabsContainer::goToDictAndWord(QString dictName, QVariant id) {
+  qDebug() << dictName << id;
+  this->setCurrentIndex(dictsOpenedMap[dictName]);
+  emit goToWord(id);
+  return true;
+}
+
 bool DictTabsContainer::createDictTabInitial(DictGlobalAttributes dictAttrs)
 {
   if (!this->dictsOpened.contains(dictAttrs)) {
@@ -37,6 +56,7 @@ bool DictTabsContainer::createDictTabInitial(DictGlobalAttributes dictAttrs)
       int tabnumber = this->addTab(new TabContents(dictAttrs, &(this->dictsOpened), this), dictAttrs.getDictname());
       this->setCurrentIndex(tabnumber);
       this->dictsOpened.insert(dictAttrs);
+      this->dictsOpenedMap[dictAttrs.getDictname()] = tabnumber;
 
       return true;
 
@@ -111,7 +131,8 @@ bool DictTabsContainer::openDictTabInitial(DictGlobalAttributes & dictAttrs, con
                   dictAttrs.debugPrint();
                   int tabnumber = this->addTab(new TabContents(dictAttrs, &(this->dictsOpened), this), dictAttrs.getDictname());
                   this->setCurrentIndex(tabnumber);
-                  this->dictsOpened.insert(dictAttrs);
+                  this->dictsOpened.insert(dictAttrs); //TODO: maybe I should do it earlier, don't remember
+                  this->dictsOpenedMap[dictAttrs.getDictname()] = tabnumber;
                 }
             } else {
               qDebug() << "Query to db failed; maybe it's not a dictionary";

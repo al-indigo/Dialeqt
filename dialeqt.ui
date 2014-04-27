@@ -42,7 +42,7 @@
        <bool>true</bool>
       </property>
       <property name="movable">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
      </widget>
     </item>
@@ -67,36 +67,6 @@
     <addaction name="separator"/>
     <addaction name="action_9"/>
    </widget>
-   <widget class="QMenu" name="menu_2">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="title">
-     <string>Правка</string>
-    </property>
-    <addaction name="action_10"/>
-    <addaction name="action_11"/>
-    <addaction name="separator"/>
-    <addaction name="action_13"/>
-    <addaction name="action_14"/>
-    <addaction name="action_15"/>
-   </widget>
-   <widget class="QMenu" name="menu_3">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="title">
-     <string>Вид</string>
-    </property>
-    <addaction name="action_16"/>
-    <addaction name="action_17"/>
-    <addaction name="separator"/>
-    <addaction name="action_19"/>
-    <addaction name="action_20"/>
-    <addaction name="action_21"/>
-    <addaction name="action_22"/>
-    <addaction name="action_23"/>
-   </widget>
    <widget class="QMenu" name="menu_4">
     <property name="enabled">
      <bool>true</bool>
@@ -107,13 +77,14 @@
     <addaction name="searchButton"/>
    </widget>
    <addaction name="menu"/>
-   <addaction name="menu_2"/>
-   <addaction name="menu_3"/>
    <addaction name="menu_4"/>
   </widget>
   <action name="openDictMenuButton">
    <property name="text">
     <string>Открыть словарь</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
   <action name="action_2">

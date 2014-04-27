@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QLayout>
+#include <QModelIndex>
 
 #include "dictglobalattributes.h"
 
@@ -22,8 +23,13 @@ public:
   explicit Search(const QSet<DictGlobalAttributes> * attrs, QWidget *parent = 0);
   ~Search();
 
+public slots:
+  bool doubleClickTree(QModelIndex idx);
 private slots:
   bool onSearchClick();
+
+signals:
+  bool showDictAndWord(QString dictname, QVariant id);
 
 private:
   Ui::search *ui;
