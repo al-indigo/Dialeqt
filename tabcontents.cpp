@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #include <QDebug>
 #include <QMessageBox>
 #include <QSqlError>
@@ -456,6 +458,7 @@ bool TabContents::sendToPraat() {
       }
    }
   QProcess::startDetached("praat" EXE);
+  sleep(1);
   QStringList args;
   QString arg1 = QString("praat");
   QString arg2 = QString("sound = Read from file... %1/%2.wav").arg(dest_dir, basename);
