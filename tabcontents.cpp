@@ -512,6 +512,7 @@ bool TabContents::saveChangesInPraat() {
           qDebug() << db.lastError().text();
           this->clearForms();
           praatModel->select();
+          errorMsg("Не удалось обновить базу данных! Попробуйте еще раз");
           return false;
       }
   }
