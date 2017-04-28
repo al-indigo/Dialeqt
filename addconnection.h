@@ -24,15 +24,15 @@ class AddConnection : public QDialog
   QSet<DictGlobalAttributes> * dictsOpened;
 //  QSqlQueryModel * model;
   QSqlTableModel * model;
-  QList<QPair<QString, QVariant>> wordsToConnect;
-  QList<QPair<QString, QVariant>> wordsToConnectWith;
+  QList<QPair<QString, QVariant> > wordsToConnect;
+  QList<QPair<QString, QVariant> > wordsToConnectWith;
   QSet<QString> connectionNamesForDicts;
   QVariant selectedTag;
   QVariant selectedWordid;
   QString filter;
 
 public:
-  explicit AddConnection(QList<QPair<QString, QVariant>> _wordsToConnect, QVariant _etimology_tag, QSqlDatabase _acceptorWordDB, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent = 0);
+  explicit AddConnection(QList<QPair<QString, QVariant> > _wordsToConnect, QVariant _etimology_tag, QSqlDatabase _acceptorWordDB, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent = 0);
   ~AddConnection();
 
 private slots:

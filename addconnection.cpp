@@ -6,7 +6,7 @@
 #include "utils.h"
 #include "customquerydiagnostics.h"
 
-AddConnection::AddConnection(QList<QPair<QString, QVariant>> _wordsToConnect, QVariant _etimology_tag, QSqlDatabase _acceptorWordDB, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent) :
+AddConnection::AddConnection(QList<QPair<QString, QVariant> > _wordsToConnect, QVariant _etimology_tag, QSqlDatabase _acceptorWordDB, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent) :
   wordsToConnect(_wordsToConnect),
   tag(_etimology_tag),
   acceptorWordDB(_acceptorWordDB),
@@ -76,9 +76,9 @@ void AddConnection::modelSetup() {
 
 bool AddConnection::cyclicConnector() {
   if (!prepareForConnection()) return false;
-  for (QList<QPair<QString, QVariant>>::Iterator i = wordsToConnect.begin(); i!= wordsToConnect.end(); i++ ) {
+  for (QList<QPair<QString, QVariant> >::Iterator i = wordsToConnect.begin(); i!= wordsToConnect.end(); i++ ) {
       QPair<QString, QVariant> temp = *i;
-      for (QList<QPair<QString, QVariant>>::Iterator k = wordsToConnectWith.begin(); k!= wordsToConnectWith.end(); k++ ) {
+      for (QList<QPair<QString, QVariant> >::Iterator k = wordsToConnectWith.begin(); k!= wordsToConnectWith.end(); k++ ) {
         QPair<QString, QVariant> tempToConnectWith = *k;
         qDebug() << "Connecting the word " << temp.second << " from database " << temp.first << " with the word " << tempToConnectWith.second << " from database " << tempToConnectWith.first;
         connectWords( QSqlDatabase::database(temp.first), temp.second, QSqlDatabase::database(tempToConnectWith.first), tempToConnectWith.second);
