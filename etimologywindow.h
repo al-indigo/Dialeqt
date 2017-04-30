@@ -22,7 +22,7 @@ class EtimologyWindow : public QDialog
   QSqlQueryModel *wordsmodel;
   QSet<DictGlobalAttributes> * dictsOpened;
   QSet<QString> connectionNamesForDicts;
-  QList<QPair<QString, QVariant>> wordsToConnect;
+  QList<QPair<QString, QVariant> > wordsToConnect;
   QString wordsModelQuery;
 public:
   explicit EtimologyWindow(QVariant _wordid, QVariant _word_transcription, QVariant _etimology_tag, QSqlDatabase _currentDb, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent = 0);

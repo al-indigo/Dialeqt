@@ -22,10 +22,9 @@ PlayWindow::PlayWindow(QStringList _playlist, QSqlDatabase _db, QString _destdir
   ui(new Ui::PlayWindow)
 {
   ui->setupUi(this);
-  QList <QUrl> playlisturls = QUrl::fromStringList(_playlist);
-  foreach (const QUrl & item, playlisturls) {
-      playlist.addMedia(item);
-    }
+  foreach (const QString & str, _playlist) {
+      playlist.addMedia(QUrl::fromLocalFile(str));
+  }
   player.setPlaylist(&playlist);
 
   playlistModel.setPlaylist(&playlist);

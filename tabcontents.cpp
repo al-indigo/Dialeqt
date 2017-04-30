@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #include <QDebug>
 #include <QMessageBox>
 #include <QSqlError>
@@ -26,6 +28,12 @@
 #include "utils.h"
 
 #include "ui_tabcontents.h"
+
+#ifdef Q_OS_WIN
+#define EXE ".exe"
+#else
+#define EXE ""
+#endif
 
 
 TabContents::TabContents(DictGlobalAttributes _dictAttrs, QSet<DictGlobalAttributes> * _dictsOpened, QWidget *parent) :
@@ -449,7 +457,8 @@ bool TabContents::sendToPraat() {
           }
       }
    }
-  QProcess::startDetached("Praat.exe");
+  QProcess::startDetached("praat" EXE);
+  sleep(1);
   QStringList args;
   QString arg1 = QString("praat");
   QString arg2 = QString("sound = Read from file... %1/%2.wav").arg(dest_dir, basename);
@@ -462,7 +471,7 @@ bool TabContents::sendToPraat() {
   args.append(arg3);
   args.append(arg4);
   args.append(arg5);
-  QProcess::execute("sendpraat.exe", args);
+  QProcess::execute("sendpraat" EXE, args);
   praatListToSave.append(QPair<QVariant, QString>(praatblobid, basename));
   return true;
 }
@@ -475,7 +484,7 @@ bool TabContents::saveChangesInPraat() {
   qDebug() << "args for praatsend: " << arg1 << arg2;
   args.append(arg1);
   args.append(arg2);
-  QProcess::execute("sendpraat.exe", args);
+  QProcess::execute("sendpraat" EXE, args);
 
   for (int i=0; i < praatListToSave.size(); i++) {
       QVariant blobid = praatListToSave[i].first;
@@ -503,6 +512,7 @@ bool TabContents::saveChangesInPraat() {
           qDebug() << db.lastError().text();
           this->clearForms();
           praatModel->select();
+          errorMsg("Не удалось обновить базу данных! Попробуйте еще раз");
           return false;
       }
   }
